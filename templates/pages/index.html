@@ -1,21 +1,257 @@
 {% extends "base/base.html" %}
 
 {% block content %}
+<style>
+    /* --- Smooth Scrolling for the 'Get Started' anchor --- */
+    html {
+        scroll-behavior: smooth;
+    }
 
-<!-- <h1>🚀 Empire Builder GPT</h1> -->
+    /* --- Overriding base.html container for a full-width layout --- */
+    .container {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: block !important; 
+    }
 
-<form method="POST" class="form-box" onsubmit="showLoader()">
-    {% csrf_token %}
+    /* --- Card-based Hero Section --- */
+    .hero-section {
+        width: 100vw;
+        height: calc(100vh - 80px);
+        padding: 1rem 1.5rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: var(--bg-color);
+    }
+
+    .hero-card {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        max-width: 1600px;
+        background-image: url('/static/images/bg_image.png');
+        background-size: cover;
+        background-position: center;
+        /* Parallax removed so it acts like a normal card */
+        border-radius: 24px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        overflow: hidden;
+    }
+
+    /* Subtle gradient overlay to make sure the button and text stand out */
+    .hero-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, rgba(11, 17, 32, 0.7) 0%, rgba(11, 17, 32, 0.1) 50%, rgba(11, 17, 32, 0.5) 100%);
+        pointer-events: none;
+    }
+
+    /* --- Get Started Button Overlay --- */
+    .get-started-wrapper {
+        position: absolute;
+        z-index: 10;
+        /* Moved down slightly to create space below the text */
+        top: 68%;
+        left: 28%;
+        transform: translate(-50%, -50%);
+    }
+
+    .get-started-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--accent-gradient);
+        color: white;
+        text-decoration: none;
+        /* Reduced padding and font-size to make the button smaller */
+        padding: 0.85rem 2.5rem;
+        font-size: 1.05rem;
+        font-weight: 700;
+        border-radius: 99px;
+        box-shadow: 0 10px 30px -5px rgba(59, 130, 246, 0.6);
+        transition: all 0.3s ease;
+        animation: fadeInUp 1s ease-out 0.5s backwards;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .get-started-btn:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px -5px rgba(59, 130, 246, 0.8);
+        border-color: rgba(255, 255, 255, 0.3);
+        color: white;
+    }
+
+    /* --- Workspace / Form Section (Below the fold) --- */
+    .workspace-section {
+        padding: 6rem 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: var(--bg-color);
+        min-height: 100vh;
+    }
+
+    /* --- Scoped Styles for Landing Page Content --- */
+    .hero-text {
+        text-align: center;
+        margin-bottom: 3rem;
+        animation: fadeInDown 0.8s ease-out;
+    }
     
-    <textarea 
-        name="idea" 
-        placeholder="Enter your startup idea..." 
-        rows="5"
-    ></textarea>
+    .hero-text h1 {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        letter-spacing: -1px;
+    }
+    
+    .hero-text h1 .highlight {
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
 
-    <br><br>
+    .hero-text p {
+        color: var(--text-secondary);
+        font-size: 1.15rem;
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
 
-    <button type="submit">Generate 🚀</button>
-</form>
+    .form-box {
+        width: 100%;
+        max-width: 800px;
+    }
 
+    /* --- Interactive Suggestion Pills --- */
+    .suggestions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        justify-content: center;
+        margin-top: 1.5rem;
+        animation: fadeIn 1s ease-out 0.3s backwards;
+    }
+
+    .suggestion-pill {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: var(--text-secondary);
+        padding: 0.5rem 1rem;
+        border-radius: 99px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        backdrop-filter: blur(4px);
+    }
+
+    .suggestion-pill:hover {
+        background: rgba(56, 189, 248, 0.1);
+        border-color: var(--accent-primary);
+        color: var(--text-primary);
+        transform: translateY(-2px);
+    }
+
+    /* --- Button Loading Spinner --- */
+    .spinner {
+        display: none;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<!-- Hero Card Section -->
+<div class="hero-section">
+    <div class="hero-card">
+        <div class="get-started-wrapper">
+            <!-- Smooth scrolls to the #workspace section below -->
+            <a href="#workspace" class="get-started-btn">Get Started 🚀</a>
+        </div>
+    </div>
+</div>
+
+<!-- The Workspace Area (Scroll Target) -->
+<div id="workspace" class="workspace-section">
+    <!-- Hero Text moved down here to introduce the form -->
+    <div class="hero-text">
+        <h1>Turn Your Vision Into an <span class="highlight">Empire</span></h1>
+        <p>Describe your startup idea below, and let our AI instantly architect your business plan, tech stack, and marketing strategy.</p>
+    </div>
+
+    <!-- The Main Form -->
+    <form method="POST" class="form-box" id="ideaForm" onsubmit="showLoader()">
+        {% csrf_token %}
+        
+        <div class="input-group">
+            <textarea 
+                id="ideaInput"
+                name="idea" 
+                placeholder="E.g., An AI-powered app that helps people grow indoor plants by analyzing photos of their leaves..." 
+                required
+            ></textarea>
+
+            <!-- Upgraded Button using base.html class -->
+            <button type="submit" class="generate-btn" id="submitBtn">
+                <span id="btnText">Build My Empire 🚀</span>
+                <div id="btnSpinner" class="spinner"></div>
+            </button>
+        </div>
+        
+        <!-- Quick-start Suggestions -->
+        <div class="suggestions">
+            <span class="suggestion-pill" onclick="fillIdea('A marketplace connecting local chefs with people hosting dinner parties.')">👨‍🍳 Local Chef Marketplace</span>
+            <span class="suggestion-pill" onclick="fillIdea('A SaaS platform that automates social media posting for real estate agents.')">🏡 Real Estate SaaS</span>
+            <span class="suggestion-pill" onclick="fillIdea('An eco-friendly subscription box delivering sustainable home goods.')">🌱 Eco Subscription Box</span>
+        </div>
+    </form>
+</div>
+
+<!-- Page Specific JavaScript -->
+<script>
+    // Fills the textarea when a user clicks a suggestion pill
+    function fillIdea(text) {
+        const textarea = document.getElementById('ideaInput');
+        textarea.value = text;
+        textarea.focus();
+    }
+
+    // Handles the smooth loading animation on the form button
+    function showLoader() {
+        const btnText = document.getElementById('btnText');
+        const btnSpinner = document.getElementById('btnSpinner');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Swap text for spinner
+        btnText.style.display = 'none';
+        btnSpinner.style.display = 'block';
+        
+        // Make button look disabled while loading
+        submitBtn.style.opacity = '0.8';
+        submitBtn.style.pointerEvents = 'none';
+        submitBtn.style.transform = 'translateY(0)'; // lock hover effect
+    }
+</script>
 {% endblock %}

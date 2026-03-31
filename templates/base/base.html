@@ -1,19 +1,262 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Empire Builder GPT</title>
-    <link rel="stylesheet" href="/static/css/styles.css">
+    <!-- Modern Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- Base Variables & Reset --- */
+        :root {
+            --bg-color: #0B1120;
+            --surface-color: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-primary: #38bdf8;
+            --accent-gradient: linear-gradient(135deg, #0ea5e9, #3b82f6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(14, 165, 233, 0.05), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.05), transparent 25%);
+        }
+
+        /* --- Glassmorphism Navigation --- */
+        .navbar {
+            background: rgba(11, 17, 32, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Logo */
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .logo .highlight {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Nav Links */
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2.5rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background: var(--accent-primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-links a.active {
+            color: var(--text-primary);
+        }
+
+        /* Login Button */
+        .nav-links .login-btn {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.6rem 1.5rem;
+            border-radius: 99px; /* Pill shape */
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .nav-links .login-btn::after {
+            display: none; /* Remove underline effect for button */
+        }
+
+        .nav-links .login-btn:hover {
+            background: var(--text-primary);
+            color: var(--bg-color);
+            transform: translateY(-1px);
+        }
+
+        /* --- Main Layout --- */
+        .container {
+            max-width: 800px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        /* --- Premium Form Elements (For child templates) --- */
+        .input-group {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 220px;
+            background-color: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(10px);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            resize: vertical;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2), 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        textarea::placeholder {
+            color: #475569;
+        }
+
+        textarea:focus {
+            border-color: var(--accent-primary);
+            background-color: rgba(30, 41, 59, 0.8);
+            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15), inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .generate-btn {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            font-size: 1.05rem;
+            font-weight: 600;
+            border-radius: 99px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px -3px rgba(59, 130, 246, 0.4);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            letter-spacing: 0.5px;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px -5px rgba(59, 130, 246, 0.5);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Subtle entrance animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links { gap: 1rem; }
+            .nav-links a:not(.login-btn) { display: none; } /* Hide links on mobile for cleaner look */
+        }
+    </style>
 </head>
 <body>
 
-<nav class="navbar">
-    <h2>🚀 Empire Builder GPT</h2>
-</nav>
+    <nav class="navbar">
+        <div class="nav-container">
+            <!-- Left -->
+            <a href="/" class="logo">
+                🚀 Empire Builder <span class="highlight">GPT</span>
+            </a>
 
-<div class="container">
-    {% block content %}{% endblock %}
-</div>
+            <!-- Right -->
+            <div class="nav-links">
+                <a href="/" class="active">Home</a>
+                <a href="#">About</a>
+                <a href="#">Contact</a>
+                <a href="/login/" class="login-btn">Login</a>
+            </div>
+        </div>
+    </nav>
 
-<script src="/static/js/main.js"></script>
+    <main class="container">
+        {% block content %}
+        <!-- Preview Content: This accurately reflects your screenshot but upgraded -->
+        <div class="input-group">
+            <textarea placeholder="Enter your startup idea..."></textarea>
+            <button class="generate-btn">Generate 🚀</button>
+        </div>
+        {% endblock %}
+    </main>
+
+    <!-- Fallback for empty JS file so it doesn't throw 404 in preview -->
+    <script>
+        // Your custom JS logic would go here, replacing /static/js/main.js
+        console.log("Empire Builder GPT Initialized");
+    </script>
 </body>
 </html>
