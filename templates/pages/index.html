@@ -1,0 +1,21 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+
+<h1>🚀 Empire Builder GPT</h1>
+
+<form method="POST" class="form-box" onsubmit="showLoader()">
+    {% csrf_token %}
+    
+    <textarea 
+        name="idea" 
+        placeholder="Enter your startup idea..." 
+        rows="5"
+    ></textarea>
+
+    <br><br>
+
+    <button type="submit">Generate 🚀</button>
+</form>
+
+{% endblock %}

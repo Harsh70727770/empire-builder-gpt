@@ -1,0 +1,16 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+
+<h1>📊 Your Startup Ideas</h1>
+
+{% for idea in ideas %}
+<div class="card">
+    <h3>{{ idea.idea }}</h3>
+    <p>{{ idea.created_at }}</p>
+</div>
+{% endfor %}
+
+<a href="/">➕ Create New</a>
+
+{% endblock %}

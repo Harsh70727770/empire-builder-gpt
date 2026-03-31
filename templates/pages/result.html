@@ -1,0 +1,41 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+
+<h1>🧠 Your Startup Plan</h1>
+
+<div class="grid">
+
+    <div class="card">
+        <h2>📊 Idea Score</h2>
+        <pre>{{ score }}</pre>
+        <button onclick="copyText(`{{ score|escapejs }}`)">📋 Copy</button>
+    </div>
+
+    <div class="card">
+        <h2>📋 Startup Plan</h2>
+        <pre>{{ plan }}</pre>
+        <button onclick="copyText(`{{ plan|escapejs }}`)">📋 Copy</button>
+    </div>
+
+    <div class="card">
+        <h2>🛠️ Build Roadmap</h2>
+        <pre>{{ roadmap }}</pre>
+        <button onclick="copyText(`{{ roadmap|escapejs }}`)">📋 Copy</button>
+    </div>
+
+    <div class="card">
+        <h2>⚙️ Tech Stack</h2>
+        <pre>{{ tech }}</pre>
+        <button onclick="copyText(`{{ tech|escapejs }}`)">📋 Copy</button>
+    </div>
+
+</div>
+
+<a href="/download/">
+    <button>📄 Download PDF</button>
+</a>
+
+<a href="/" class="back-btn">⬅ Back</a>
+
+{% endblock %}
