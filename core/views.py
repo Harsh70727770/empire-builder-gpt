@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .services.ai_engine import (
     generate_startup_plan,
     generate_idea_score,
@@ -6,7 +6,13 @@ from .services.ai_engine import (
     generate_tech_stack
 )
 from .utils.formatters import parse_response
+from django.http import FileResponse
+from .utils.pdf_generator import generate_pdf
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
+from .models import StartupIdea, UserProfile   
 
+# HOME
 def home(request):
     if request.method == "POST":
         idea = request.POST.get("idea")
@@ -25,19 +31,12 @@ def home(request):
 
     return render(request, "pages/index.html")
 
-from django.http import FileResponse
-from .utils.pdf_generator import generate_pdf
-
+# DOWNLOAD PDF
 def download_pdf(request):
     data = request.session.get("data")
 
     filename = generate_pdf(data)
     return FileResponse(open(filename, "rb"), as_attachment=True)
-
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
-from django.shortcuts import render, redirect
-from .models import StartupIdea, UserProfile   
 
 # LOGIN
 def login_view(request):
@@ -89,7 +88,7 @@ def signup_view(request):
             email=email
         )
 
-        # CREATE USER PROFILE (NEW)
+        # CREATE PROFILE
         UserProfile.objects.create(
             user=user,
             phone=phone,
@@ -106,10 +105,35 @@ def logout_view(request):
     logout(request)
     return redirect("login")
 
+# DASHBOARD (UPDATED)
 def dashboard(request):
     if not request.user.is_authenticated:
         return redirect("login")
 
     ideas = StartupIdea.objects.filter(user=request.user).order_by("-created_at")
+    profile = UserProfile.objects.get(user=request.user)  
 
-    return render(request, "pages/dashboard.html", {"ideas": ideas})
+    return render(request, "pages/dashboard.html", {
+        "ideas": ideas,
+        "profile": profile   # PASS PROFILE
+    })
+
+# EDIT PROFILE
+def edit_profile(request):
+    if not request.user.is_authenticated:
+        return redirect("login")
+
+    profile = UserProfile.objects.get(user=request.user)
+
+    if request.method == "POST":
+        profile.phone = request.POST.get("phone")
+        profile.country = request.POST.get("country")
+        profile.state = request.POST.get("state")
+
+        if request.FILES.get("profile_image"):
+            profile.profile_image = request.FILES.get("profile_image")
+
+        profile.save()
+        return redirect("dashboard")
+
+    return render(request, "pages/edit_profile.html", {"profile": profile})

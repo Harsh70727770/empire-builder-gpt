@@ -13,6 +13,7 @@ class UserProfile(models.Model):
     phone = models.CharField(max_length=15)
     country = models.CharField(max_length=100)
     state = models.CharField(max_length=100)
+    profile_image = models.ImageField(upload_to='profiles/', default='profiles/default.png') 
 
     def __str__(self):
         return self.user.username

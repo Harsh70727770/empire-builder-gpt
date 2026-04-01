@@ -2,6 +2,18 @@
 
 {% block content %}
 
+<div class="card">
+    <h2>👤 Profile</h2>
+
+    <img src="{{ profile.profile_image.url }}" width="100" style="border-radius:50%">
+
+    <p><b>{{ request.user.username }}</b></p>
+    <p>{{ profile.phone }}</p>
+    <p>{{ profile.country }}, {{ profile.state }}</p>
+
+    <a href="/profile/edit/">Edit Profile</a>
+</div>
+
 <h1>📊 Your Startup Ideas</h1>
 
 {% for idea in ideas %}
