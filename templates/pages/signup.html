@@ -1,14 +1,395 @@
 {% extends "base/base.html" %}
 
 {% block content %}
+<style>
+    /* --- Auth Page Specific Layout --- */
+    .auth-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        /* Takes up the full height minus the navbar */
+        min-height: calc(100vh - 120px); 
+        width: 100%;
+        padding: 2rem 1rem;
+    }
 
-<h2>Signup</h2>
+    /* --- Glassmorphism Auth Card --- */
+    .auth-card {
+        background: rgba(30, 41, 59, 0.4);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        padding: 3rem 2.5rem;
+        width: 100%;
+        max-width: 550px; 
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+        animation: fadeInUp 0.6s ease-out;
+    }
 
-<form method="POST">
-    {% csrf_token %}
-    <input type="text" name="username">
-    <input type="password" name="password">
-    <button type="submit">Signup</button>
-</form>
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
 
+    .auth-header h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .auth-header p {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+    }
+
+    /* --- Form Elements --- */
+    .auth-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .input-row {
+        display: flex;
+        gap: 1rem;
+        width: 100%;
+    }
+
+    .input-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        flex: 1; /* Allows columns to take equal width */
+    }
+
+    .input-wrapper label {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-left: 0.25rem;
+    }
+
+    /* --- Phone Input Specific Styles --- */
+    .phone-group {
+        display: flex;
+        gap: 0.5rem;
+        width: 100%;
+    }
+
+    .phone-group select {
+        flex: 0 0 110px; /* Fixed width for the dropdown so it has enough room */
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+        cursor: pointer;
+    }
+
+    .phone-group input {
+        flex: 1; /* Takes up the remaining space */
+        min-width: 0; /* Prevents flex overflow */
+    }
+
+    .auth-input option {
+        background-color: #1e293b; /* Dark background for dropdown menu */
+        color: #f8fafc;
+    }
+
+    /* --- Password Toggle Specific Styles --- */
+    .password-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .password-container .auth-input {
+        width: 100%;
+        padding-right: 2.8rem; /* Ensure text doesn't run under the emoji */
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 1rem;
+        cursor: pointer;
+        font-size: 1.2rem;
+        user-select: none;
+        opacity: 0.7;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .password-toggle:hover {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+
+    .auth-input {
+        width: 100%;
+        box-sizing: border-box; /* Forces padding to stay inside width, fixing cutoff */
+        background-color: rgba(15, 23, 42, 0.6);
+        color: var(--text-primary);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 0.85rem 1.2rem;
+        font-size: 1rem;
+        outline: none;
+        transition: all 0.3s ease;
+    }
+
+    .auth-input::placeholder {
+        color: #475569;
+    }
+
+    .auth-input:focus {
+        border-color: var(--accent-primary);
+        background-color: rgba(15, 23, 42, 0.8);
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+
+    /* Fix for browser autofill background in dark mode */
+    .auth-input:-webkit-autofill,
+    .auth-input:-webkit-autofill:hover, 
+    .auth-input:-webkit-autofill:focus, 
+    .auth-input:-webkit-autofill:active{
+        -webkit-box-shadow: 0 0 0 30px #0f172a inset !important;
+        -webkit-text-fill-color: white !important;
+        transition: background-color 5000s ease-in-out 0s;
+    }
+
+    /* --- Error Messages --- */
+    .error-msg {
+        color: #ef4444;
+        font-size: 0.8rem;
+        margin-left: 0.25rem;
+        display: none;
+    }
+
+    .alert-error {
+        background-color: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.4);
+        color: #ef4444;
+        padding: 0.85rem 1rem;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        animation: fadeInUp 0.3s ease-out;
+    }
+
+    .auth-btn {
+        background: var(--accent-gradient);
+        color: white;
+        border: none;
+        padding: 1rem;
+        font-size: 1.05rem;
+        font-weight: 600;
+        border-radius: 12px;
+        cursor: pointer;
+        margin-top: 1.5rem;
+        box-shadow: 0 4px 15px -3px rgba(59, 130, 246, 0.4);
+        transition: all 0.3s ease;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .auth-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px -5px rgba(59, 130, 246, 0.6);
+    }
+
+    /* --- Footer Links --- */
+    .auth-footer {
+        margin-top: 2rem;
+        text-align: center;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+
+    .auth-footer a {
+        color: var(--accent-primary);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+
+    .auth-footer a:hover {
+        color: #60a5fa;
+        text-decoration: underline;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Mobile Responsiveness for Rows */
+    @media (max-width: 480px) {
+        .input-row {
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+    }
+</style>
+
+<div class="auth-wrapper">
+    <div class="auth-card">
+        
+        <div class="auth-header">
+            <h2>Create Account</h2>
+            <p>Join us and start building your empire today.</p>
+        </div>
+
+        <form method="POST" class="auth-form" id="signupForm">
+            {% csrf_token %}
+            
+            <!-- Backend Error Alert (e.g. Username exists) -->
+            {% if error %}
+            <div class="alert-error">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <!-- Username -->
+            <div class="input-wrapper">
+                <label for="username">Username</label>
+                <input type="text" name="username" id="username" class="auth-input" placeholder="Choose a username" required>
+            </div>
+
+            <!-- First & Last Name Row -->
+            <div class="input-row">
+                <div class="input-wrapper">
+                    <label for="first_name">First Name</label>
+                    <input type="text" name="first_name" id="first_name" class="auth-input" placeholder="First Name" required>
+                </div>
+                <div class="input-wrapper">
+                    <label for="last_name">Last Name</label>
+                    <input type="text" name="last_name" id="last_name" class="auth-input" placeholder="Last Name" required>
+                </div>
+            </div>
+
+            <!-- Email (Now Full Width to prevent cutoff) -->
+            <div class="input-wrapper">
+                <label for="email">Email</label>
+                <input type="email" name="email" id="email" class="auth-input" placeholder="Enter your email" required>
+            </div>
+
+            <!-- Phone Number (Now Full Width to prevent cutoff) -->
+            <div class="input-wrapper">
+                <label for="phone">Phone Number</label>
+                <div class="phone-group">
+                    <select name="country_code" id="country_code" class="auth-input" required>
+                        <option value="+1">+1 (US/CA)</option>
+                        <option value="+44">+44 (UK)</option>
+                        <option value="+91" selected>+91 (IN)</option>
+                        <option value="+61">+61 (AU)</option>
+                        <option value="+49">+49 (DE)</option>
+                        <option value="+33">+33 (FR)</option>
+                        <option value="+81">+81 (JP)</option>
+                        <option value="+86">+86 (CN)</option>
+                    </select>
+                    <input type="tel" name="phone" id="phone" class="auth-input" placeholder="Phone Number" required>
+                </div>
+            </div>
+
+            <!-- Country & State Row -->
+            <div class="input-row">
+                <div class="input-wrapper">
+                    <label for="country">Country</label>
+                    <input type="text" name="country" id="country" class="auth-input" placeholder="Country" required>
+                </div>
+                <div class="input-wrapper">
+                    <label for="state">State / Province</label>
+                    <input type="text" name="state" id="state" class="auth-input" placeholder="State" required>
+                </div>
+            </div>
+
+            <!-- Password -->
+            <div class="input-wrapper">
+                <label for="password">Password</label>
+                <div class="password-container">
+                    <input 
+                        type="password" 
+                        name="password" 
+                        id="password" 
+                        class="auth-input" 
+                        placeholder="Create a strong password" 
+                        required
+                        pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}"
+                        title="Must contain at least one number, one uppercase letter, one lowercase letter, one special character, and be at least 8 characters long."
+                    >
+                    <span id="togglePassword" class="password-toggle" title="Show password">🙈</span>
+                </div>
+                <span id="passwordError" class="error-msg">Passwords do not match</span>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="input-wrapper">
+                <label for="confirm_password">Confirm Password</label>
+                <div class="password-container">
+                    <input type="password" name="confirm_password" id="confirm_password" class="auth-input" placeholder="Confirm your password" required>
+                    <span id="toggleConfirmPassword" class="password-toggle" title="Show password">🙈</span>
+                </div>
+            </div>
+
+            <button type="submit" class="auth-btn">
+                Sign Up 🚀
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            Already have an account? <a href="/login/">Log in</a>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Function to handle toggling password visibility
+    function setupPasswordToggle(toggleId, inputId) {
+        const toggle = document.getElementById(toggleId);
+        const input = document.getElementById(inputId);
+
+        toggle.addEventListener('click', function () {
+            const isPassword = input.getAttribute('type') === 'password';
+            input.setAttribute('type', isPassword ? 'text' : 'password');
+            this.textContent = isPassword ? '👁' : '🙈';
+            this.title = isPassword ? 'Hide password' : 'Show password';
+        });
+    }
+
+    // Apply toggle to both password fields
+    setupPasswordToggle('togglePassword', 'password');
+    setupPasswordToggle('toggleConfirmPassword', 'confirm_password');
+
+    // Validation for matching passwords on form submit
+    const signupForm = document.getElementById('signupForm');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirm_password');
+    const passwordError = document.getElementById('passwordError');
+
+    signupForm.addEventListener('submit', function(e) {
+        if (passwordInput.value !== confirmPasswordInput.value) {
+            e.preventDefault(); // Stop form submission
+            passwordError.style.display = 'block';
+            confirmPasswordInput.style.borderColor = '#ef4444';
+            passwordInput.style.borderColor = '#ef4444';
+        } else {
+            passwordError.style.display = 'none';
+            confirmPasswordInput.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+            passwordInput.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+        }
+    });
+
+    // Hide error dynamically when typing again
+    confirmPasswordInput.addEventListener('input', function() {
+        if(passwordError.style.display === 'block') {
+            passwordError.style.display = 'none';
+            confirmPasswordInput.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+            passwordInput.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+        }
+    });
+</script>
 {% endblock %}

@@ -37,6 +37,7 @@ def download_pdf(request):
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
+from .models import StartupIdea, UserProfile   
 
 # LOGIN
 def login_view(request):
@@ -57,8 +58,45 @@ def signup_view(request):
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
+        confirm_password = request.POST.get("confirm_password")
 
-        User.objects.create_user(username=username, password=password)
+        first_name = request.POST.get("first_name")
+        last_name = request.POST.get("last_name")
+        email = request.POST.get("email")
+
+        phone = request.POST.get("phone")
+        country = request.POST.get("country")
+        state = request.POST.get("state")
+
+        # Password match check
+        if password != confirm_password:
+            return render(request, "pages/signup.html", {
+                "error": "Passwords do not match ❌"
+            })
+
+        # Username exists check
+        if User.objects.filter(username=username).exists():
+            return render(request, "pages/signup.html", {
+                "error": "Username already exists ❌"
+            })
+
+        # CREATE USER
+        user = User.objects.create_user(
+            username=username,
+            password=password,
+            first_name=first_name,
+            last_name=last_name,
+            email=email
+        )
+
+        # CREATE USER PROFILE (NEW)
+        UserProfile.objects.create(
+            user=user,
+            phone=phone,
+            country=country,
+            state=state
+        )
+
         return redirect("login")
 
     return render(request, "pages/signup.html")

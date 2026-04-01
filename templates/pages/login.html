@@ -1,16 +1,231 @@
 {% extends "base/base.html" %}
 
 {% block content %}
+<style>
+    /* --- Login Page Specific Layout --- */
+    .login-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        /* Takes up the full height minus the navbar */
+        min-height: calc(100vh - 120px); 
+        width: 100%;
+        padding: 2rem;
+    }
 
-<h2>Login</h2>
+    /* --- Glassmorphism Auth Card --- */
+    .auth-card {
+        background: rgba(30, 41, 59, 0.4);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        padding: 3rem 2.5rem;
+        width: 100%;
+        max-width: 420px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+        animation: fadeInUp 0.6s ease-out;
+    }
 
-<form method="POST">
-    {% csrf_token %}
-    <input type="text" name="username" placeholder="Username">
-    <input type="password" name="password" placeholder="Password">
-    <button type="submit">Login</button>
-</form>
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
 
-<a href="/signup/">Create account</a>
+    .auth-header h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
 
+    .auth-header p {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+    }
+
+    /* --- Form Elements --- */
+    .auth-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .input-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .input-wrapper label {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-left: 0.25rem;
+    }
+
+    /* --- Password Toggle Specific Styles --- */
+    .password-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .password-container .auth-input {
+        width: 100%;
+        padding-right: 2.8rem; /* Ensure text doesn't run under the emoji */
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 1rem;
+        cursor: pointer;
+        font-size: 1.2rem;
+        user-select: none;
+        opacity: 0.7;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .password-toggle:hover {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+
+    .auth-input {
+        width: 100%;
+        background-color: rgba(15, 23, 42, 0.6);
+        color: var(--text-primary);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 0.85rem 1.2rem;
+        font-size: 1rem;
+        outline: none;
+        transition: all 0.3s ease;
+    }
+
+    .auth-input::placeholder {
+        color: #475569;
+    }
+
+    .auth-input:focus {
+        border-color: var(--accent-primary);
+        background-color: rgba(15, 23, 42, 0.8);
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+
+    /* Fix for browser autofill background in dark mode */
+    .auth-input:-webkit-autofill,
+    .auth-input:-webkit-autofill:hover, 
+    .auth-input:-webkit-autofill:focus, 
+    .auth-input:-webkit-autofill:active{
+        -webkit-box-shadow: 0 0 0 30px #0f172a inset !important;
+        -webkit-text-fill-color: white !important;
+        transition: background-color 5000s ease-in-out 0s;
+    }
+
+    .auth-btn {
+        background: var(--accent-gradient);
+        color: white;
+        border: none;
+        padding: 0.9rem;
+        font-size: 1.05rem;
+        font-weight: 600;
+        border-radius: 12px;
+        cursor: pointer;
+        margin-top: 1rem;
+        box-shadow: 0 4px 15px -3px rgba(59, 130, 246, 0.4);
+        transition: all 0.3s ease;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .auth-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px -5px rgba(59, 130, 246, 0.6);
+    }
+
+    /* --- Footer Links --- */
+    .auth-footer {
+        margin-top: 2rem;
+        text-align: center;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+
+    .auth-footer a {
+        color: var(--accent-primary);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+
+    .auth-footer a:hover {
+        color: #60a5fa;
+        text-decoration: underline;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="login-wrapper">
+    <div class="auth-card">
+        
+        <div class="auth-header">
+            <h2>Welcome Back</h2>
+            <p>Enter your details to access your empire.</p>
+        </div>
+
+        <form method="POST" class="auth-form">
+            {% csrf_token %}
+            
+            <div class="input-wrapper">
+                <label for="username">Username</label>
+                <!-- If using Django {{ form.username }}, add class="auth-input" to your form widget in forms.py, OR use raw HTML like below: -->
+                <input type="text" name="username" id="username" class="auth-input" placeholder="Enter your username" required>
+            </div>
+
+            <div class="input-wrapper">
+                <label for="password">Password</label>
+                <!-- If using Django {{ form.password }}, add class="auth-input" to your form widget in forms.py, OR use raw HTML like below: -->
+                <div class="password-container">
+                    <input type="password" name="password" id="password" class="auth-input" placeholder="••••••••" required>
+                    <span id="togglePassword" class="password-toggle" title="Show password">🙈</span>
+                </div>
+            </div>
+
+            <button type="submit" class="auth-btn">
+                Log In 
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            Don't have an account? <a href="/signup/">Create account</a>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Logic for toggling password visibility
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+
+    togglePassword.addEventListener('click', function () {
+        // Check current input type
+        const isPassword = passwordInput.getAttribute('type') === 'password';
+        
+        // Toggle the type attribute
+        passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+        
+        // Toggle the emoji (🙈 to hide, 👁 to show)
+        this.textContent = isPassword ? '👁' : '🙈';
+        this.title = isPassword ? 'Hide password' : 'Show password';
+    });
+</script>
 {% endblock %}
