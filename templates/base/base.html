@@ -367,6 +367,34 @@
             font-size: 0.85rem;
         }
 
+        /* --- Footer Social Links --- */
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .social-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .social-icon:hover {
+            background: var(--accent-gradient);
+            color: white;
+            border-color: transparent;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px -3px rgba(59, 130, 246, 0.4);
+        }
+
         /* --- Responsive Adjustments --- */
         @media (max-width: 900px) {
             .nav-links { gap: 1.5rem; }
@@ -438,8 +466,8 @@
             <!-- Right -->
             <div class="nav-links">
                 <a href="/" class="active">Home</a>
-                <a href="#">About</a>
-                <a href="#">Contact</a>
+                <a href="/about/">About</a>
+                <a href="/contact/">Contact</a>
 
                 {% if request.user.is_authenticated %}
                 <!-- USER MENU WITH DROPDOWN -->
@@ -490,6 +518,22 @@
                     🚀 Empire Builder <span class="highlight">GPT</span>
                 </a>
                 <p>An AI-powered startup assistant designed to architect your vision, business plan, and marketing strategy instantly.</p>
+                
+                <!-- Social Media Icons -->
+                <div class="social-links">
+                    <a href="https://wa.me/918840216515" target="_blank" class="social-icon" title="WhatsApp">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path><path d="M16 14.5c-.3.3-1 .6-1.5.5s-2.5-1-4-2.5-2.4-3.5-2.5-4 .2-1.2.5-1.5.5-.5.8-.5 1 .6 1.2 1 .3 1-.1 1.5-.6.5-1 1 1 2.5 2.5 4c.5-.4 1-.5 1.5-.1s1 .9 1 1.2-.2 1-.5 1.3z"></path></svg>
+                    </a>
+                    <a href="https://www.instagram.com/h.arsh143/" target="_blank" class="social-icon" title="Instagram">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                    </a>
+                    <a href="https://www.linkedin.com/in/harsh-singh-ba1436259/" target="_blank" class="social-icon" title="LinkedIn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+                    </a>
+                    <a href="https://www.facebook.com/profile.php?id=100020963228087" target="_blank" class="social-icon" title="Facebook">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                    </a>
+                </div>
             </div>
             
             <!-- Links Columns -->
@@ -498,20 +542,15 @@
                     <h4>Platform</h4>
                     <a href="/">Home</a>
                     <a href="/dashboard/">Dashboard</a>
-                    <a href="#">Features</a>
-                    <a href="#">Pricing</a>
+                    <a href="/features/">Features</a>
+                    <!-- <a href="#">Pricing</a> -->
                 </div>
-                <div class="link-group">
-                    <h4>Resources</h4>
-                    <a href="#">Help Center</a>
-                    <a href="#">API Documentation</a>
-                    <a href="#">Community</a>
-                </div>
+            
                 <div class="link-group">
                     <h4>Company</h4>
-                    <a href="#">About Us</a>
-                    <a href="#">Contact Support</a>
-                    <a href="#">Privacy Policy</a>
+                    <a href="/about/">About Us</a>
+                    <a href="/contact/">Contact Support</a>
+                    <a href="/privacypolicy/">Privacy Policy</a>
                 </div>
             </div>
         </div>

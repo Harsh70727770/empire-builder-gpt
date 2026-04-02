@@ -1,0 +1,192 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+<style>
+    /* --- Contact Page Specific Layout --- */
+    .contact-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        /* Takes up full height minus navbar/footer breathing room */
+        min-height: calc(100vh - 120px); 
+        width: 100%;
+        padding: 4rem 1rem;
+        background: radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.05) 0%, transparent 50%);
+    }
+
+    /* --- Glassmorphism Card --- */
+    .contact-card {
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 24px;
+        padding: 3.5rem 3rem;
+        width: 100%;
+        max-width: 550px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    .contact-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .contact-header h2 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+        letter-spacing: -0.5px;
+    }
+
+    .contact-header p {
+        color: var(--text-secondary);
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+
+    /* --- Form Elements --- */
+    .contact-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .input-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .input-wrapper label {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-left: 0.25rem;
+    }
+
+    .contact-input, 
+    .contact-textarea {
+        width: 100%;
+        background-color: rgba(15, 23, 42, 0.6);
+        color: var(--text-primary);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 1rem 1.2rem;
+        font-size: 1rem;
+        outline: none;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+
+    .contact-textarea {
+        resize: vertical;
+        min-height: 150px;
+        line-height: 1.5;
+    }
+
+    .contact-input:focus,
+    .contact-textarea:focus {
+        border-color: var(--accent-primary);
+        background-color: rgba(15, 23, 42, 0.8);
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+
+    .contact-input::placeholder,
+    .contact-textarea::placeholder {
+        color: #475569;
+    }
+
+    /* --- Submit Button --- */
+    .submit-btn {
+        background: var(--accent-gradient);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        font-size: 1.05rem;
+        font-weight: 600;
+        border-radius: 12px;
+        cursor: pointer;
+        box-shadow: 0 4px 15px -3px rgba(59, 130, 246, 0.4);
+        transition: all 0.3s ease;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        width: 100%;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px -5px rgba(59, 130, 246, 0.6);
+    }
+
+    /* --- Success Message Styling --- */
+    .success-message {
+        background: rgba(56, 189, 248, 0.1);
+        border: 1px solid rgba(56, 189, 248, 0.2);
+        padding: 1rem;
+        border-radius: 12px;
+        text-align: center;
+        font-weight: 500;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 480px) {
+        .contact-card {
+            padding: 2.5rem 1.5rem;
+        }
+    }
+</style>
+
+<div class="contact-wrapper">
+    <div class="contact-card">
+        
+        <div class="contact-header">
+            <h2>Get in Touch</h2>
+            <p>Have questions, feedback, or want to collaborate? Send us a message and we'll get back to you shortly.</p>
+        </div>
+
+        <!-- Success Message Block -->
+        {% if success %}
+        <div class="success-message" style="color: #38bdf8; margin-bottom: 20px;">
+             Message sent successfully!
+        </div>
+        {% endif %}
+
+        <!-- Contact Form -->
+        <form method="POST" class="contact-form">
+            {% csrf_token %}
+            
+            <div class="input-wrapper">
+                <label for="name">Full Name</label>
+                <input type="text" name="name" id="name" class="contact-input" placeholder="John Doe" required>
+            </div>
+
+            <div class="input-wrapper">
+                <label for="email">Email Address</label>
+                <input type="email" name="email" id="email" class="contact-input" placeholder="john@example.com" required>
+            </div>
+
+            <div class="input-wrapper">
+                <label for="message">Your Message</label>
+                <textarea name="message" id="message" class="contact-textarea" placeholder="How can we help you build your empire?" required></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                Send Message
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

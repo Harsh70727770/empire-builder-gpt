@@ -1,11 +1,433 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>This is about page</h1>
-</body>
-</html>
+{% extends "base/base.html" %}
+
+{% block content %}
+<style>
+    /* --- Overriding base.html container for full-width layout --- */
+    .container {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: block !important; 
+    }
+
+    /* --- About Hero Section --- */
+    .about-hero {
+        width: 100vw;
+        padding: 8rem 2rem 6rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        background: radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.1) 0%, transparent 50%);
+        position: relative;
+    }
+
+    .about-hero h1 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 1.5rem;
+        letter-spacing: -1px;
+        animation: fadeInDown 0.8s ease-out;
+    }
+
+    .about-hero h1 .highlight {
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .about-hero p {
+        color: var(--text-secondary);
+        font-size: 1.25rem;
+        max-width: 700px;
+        line-height: 1.7;
+        margin-bottom: 2rem;
+        animation: fadeInUp 0.8s ease-out 0.2s backwards;
+    }
+
+    /* --- Glassmorphism Elements --- */
+    .glass-card {
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 24px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+
+    /* --- Mission Section --- */
+    .mission-section {
+        max-width: 1000px;
+        margin: 0 auto 6rem;
+        padding: 0 2rem;
+        animation: fadeInUp 0.8s ease-out 0.4s backwards;
+    }
+
+    .mission-card {
+        padding: 4rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .mission-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--accent-gradient);
+    }
+
+    .mission-card h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 1.5rem;
+    }
+
+    .mission-card p {
+        color: var(--text-secondary);
+        font-size: 1.15rem;
+        line-height: 1.8;
+    }
+
+    /* --- Values Grid --- */
+    .values-section {
+        max-width: 1200px;
+        margin: 0 auto 8rem;
+        padding: 0 2rem;
+    }
+
+    .values-header {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    .values-header h2 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+    }
+
+    .values-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2.5rem;
+    }
+
+    .value-card {
+        padding: 3rem 2rem;
+        text-align: left;
+    }
+
+    .value-card:hover {
+        transform: translateY(-10px);
+        border-color: rgba(56, 189, 248, 0.3);
+        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(56, 189, 248, 0.1);
+    }
+
+    .value-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 20px;
+        background: rgba(56, 189, 248, 0.1);
+        color: var(--accent-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .value-icon svg {
+        width: 32px;
+        height: 32px;
+    }
+
+    .value-card h3 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+    }
+
+    .value-card p {
+        color: var(--text-secondary);
+        line-height: 1.6;
+        font-size: 1rem;
+    }
+
+    /* --- Team / Founder Section --- */
+    .team-section {
+        max-width: 1200px;
+        margin: 0 auto 8rem;
+        padding: 0 2rem;
+        position: relative;
+    }
+
+    .team-header {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    .team-header h2 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        letter-spacing: -1px;
+    }
+
+    .team-header h2 .highlight {
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .team-container {
+        display: flex;
+        gap: 4rem;
+        align-items: center;
+    }
+
+    .team-image-col {
+        flex: 0 0 380px;
+    }
+
+    .founder-card {
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .founder-image {
+        width: 100%;
+        height: auto;
+        border-radius: 16px;
+        margin-bottom: 1.5rem;
+        border: 2px solid rgba(56, 189, 248, 0.3);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        object-fit: cover;
+    }
+
+    .founder-info h3 {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .founder-title {
+        color: var(--accent-primary);
+        font-weight: 700;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+    }
+
+    .team-content-col {
+        flex: 1;
+    }
+
+    .team-content-col p {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        line-height: 1.8;
+        margin-bottom: 1.25rem;
+    }
+
+    .team-content-col .highlight-quote {
+        color: var(--text-primary);
+        font-weight: 600;
+        font-size: 1.25rem;
+        margin-top: 2rem;
+        border-left: 4px solid var(--accent-primary);
+        background: linear-gradient(90deg, rgba(56, 189, 248, 0.1) 0%, transparent 100%);
+        padding: 1.2rem 1.5rem;
+        border-radius: 0 12px 12px 0;
+        margin-bottom: 0;
+    }
+
+    /* --- CTA Section --- */
+    .about-cta {
+        text-align: center;
+        padding: 6rem 2rem;
+        background: radial-gradient(circle at center, rgba(14, 165, 233, 0.08) 0%, transparent 70%);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .about-cta h2 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+    }
+
+    .cta-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--accent-gradient);
+        color: white;
+        text-decoration: none;
+        padding: 1.2rem 3rem;
+        font-size: 1.1rem;
+        font-weight: 700;
+        border-radius: 99px;
+        box-shadow: 0 10px 30px -5px rgba(59, 130, 246, 0.6);
+        transition: all 0.3s ease;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .cta-btn:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px -5px rgba(59, 130, 246, 0.8);
+        border-color: rgba(255, 255, 255, 0.3);
+        color: white;
+    }
+
+    /* --- Animations --- */
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* --- Responsive --- */
+    @media (max-width: 900px) {
+        .team-container {
+            flex-direction: column;
+            text-align: center;
+            gap: 3rem;
+        }
+        .team-image-col {
+            flex: 0 0 auto;
+            width: 100%;
+            max-width: 400px;
+        }
+        .team-content-col .highlight-quote {
+            text-align: left;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .about-hero h1 { font-size: 2.5rem; }
+        .mission-card { padding: 2.5rem 1.5rem; }
+        .values-header h2 { font-size: 2rem; }
+        .team-header h2 { font-size: 2rem; }
+    }
+</style>
+
+<!-- Hero Section -->
+<section class="about-hero">
+    <h1>Democratizing <span class="highlight">Startup Creation</span></h1>
+    <p>We believe that anyone with a brilliant idea should have the blueprint to build it. Empire Builder GPT is your elite, AI-powered co-founder.</p>
+</section>
+
+<!-- Mission Section -->
+<section class="mission-section">
+    <div class="glass-card mission-card">
+        <h2>Our Mission</h2>
+        <p>
+            For too long, the barrier to entry for building a tech startup has been walled behind expensive consultants, exclusive accelerators, and overwhelming technical jargon. 
+            <strong>Our mission is to eliminate the friction between a raw idea and a launched business.</strong> 
+            By leveraging bleeding-edge generative AI, we provide instant, actionable, and scalable roadmaps to entrepreneurs everywhere.
+        </p>
+    </div>
+</section>
+
+<!-- Core Values Grid -->
+<section class="values-section">
+    <div class="values-header">
+        <h2>Why We Built This</h2>
+    </div>
+
+    <div class="values-grid">
+        <!-- Value 1 -->
+        <div class="glass-card value-card">
+            <div class="value-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+            </div>
+            <h3>Velocity</h3>
+            <p>Speed is the ultimate weapon in business. We condense weeks of business planning, market research, and tech stack architecture into a matter of seconds.</p>
+        </div>
+
+        <!-- Value 2 -->
+        <div class="glass-card value-card">
+            <div class="value-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                </svg>
+            </div>
+            <h3>Accessibility</h3>
+            <p>You shouldn't need a computer science degree or an MBA to start a company. We translate complex architectures into clear, step-by-step guides anyone can follow.</p>
+        </div>
+
+        <!-- Value 3 -->
+        <div class="glass-card value-card">
+            <div class="value-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                    <path d="M2 17l10 5 10-5"></path>
+                    <path d="M2 12l10 5 10-5"></path>
+                </svg>
+            </div>
+            <h3>Intelligence</h3>
+            <p>Powered by advanced large language models, our AI analyzes current market trends and optimal technology frameworks to give you a competitive edge from Day 1.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Meet the Founder Section -->
+<section class="team-section">
+    <div class="team-header">
+        <h2>Meet the <span class="highlight">Founder</span></h2>
+    </div>
+    
+    <div class="team-container">
+        <!-- Image Column -->
+        <div class="team-image-col">
+            <div class="glass-card founder-card">
+                <!-- Using the exact path from your project folder -->
+                <img src="/media/profiles/Founder.png" alt="Harsh Singh" class="founder-image">
+                <div class="founder-info">
+                    <h3>Harsh Singh</h3>
+                    <p class="founder-title">Founder & CEO</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Content Column -->
+        <div class="team-content-col">
+            <p>Harsh Singh is a passionate and driven tech enthusiast currently pursuing a B.Tech in Computer Science with a specialization in Artificial Intelligence and Machine Learning. Known for his curiosity and problem-solving mindset, he constantly explores new technologies and builds innovative solutions that bridge the gap between ideas and real-world impact.</p>
+            
+            <p>He has a strong interest in full-stack development and AI-powered systems, often working on projects that combine intelligence with usability. One of his key projects, Empire Builder GPT, reflects his vision of transforming simple ideas into fully developed startup solutions using the power of artificial intelligence.</p>
+            
+            <p>Beyond technical skills, Harsh is also a natural leader. As the President of TechnoClub, he actively leads initiatives, organizes events, and fosters a collaborative environment where students can grow, learn, and innovate together. His leadership reflects not only responsibility but also a deep commitment to building a strong tech community.</p>
+            
+            <p>He believes in continuous learning and self-improvement. Whether it's coding, leading a team, or building something from scratch, he approaches every challenge with determination and creativity.</p>
+            
+            <p>His ultimate goal is to create impactful technology that not only solves problems but also inspires others to build and innovate.</p>
+            
+            <p class="highlight-quote">🚀 He’s not just learning tech — he’s building the future with it.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Call To Action -->
+<section class="about-cta">
+    <h2>Ready to build the future?</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 2.5rem; font-size: 1.1rem;">Join the next generation of founders building their empires today.</p>
+    <a href="/dashboard/" class="cta-btn">Start Building Now 🚀</a>
+</section>
+
+{% endblock %}

@@ -145,3 +145,51 @@ def edit_profile(request):
         return redirect("dashboard")
 
     return render(request, "pages/edit_profile.html", {"profile": profile})
+
+def about_view(request):
+    return render(request, "pages/about.html")
+
+
+from django.core.mail import send_mail
+from django.conf import settings
+from .models import ContactMessage
+
+def contact_view(request):
+    if request.method == "POST":
+        name = request.POST.get("name")
+        email = request.POST.get("email")
+        message = request.POST.get("message")
+
+        #  Save to Database
+        ContactMessage.objects.create(
+            name=name,
+            email=email,
+            message=message
+        )
+
+        #  Send Email
+        subject = f"New Contact Message from {name}"
+        full_message = f"""
+        Name: {name}
+        Email: {email}
+        Message:
+        {message}
+        """
+
+        send_mail(
+            subject,
+            full_message,
+            settings.EMAIL_HOST_USER,
+            [settings.EMAIL_HOST_USER],
+            fail_silently=False,
+        )
+
+        return render(request, "pages/contact.html", {"success": True})
+
+    return render(request, "pages/contact.html")
+
+def features_view(request):
+    return render(request, "pages/features.html")
+
+def privacypolicy_view(request):
+    return render(request,"pages/privacypolicy.html")
