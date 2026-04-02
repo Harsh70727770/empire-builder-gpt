@@ -1,0 +1,416 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+<style>
+    /* --- Dashboard Specific Layout --- */
+    .dashboard-wrapper {
+        width: 100%;
+        /* Increased max-width to cover more of the page */
+        max-width: 1400px; 
+        margin: 0 auto;
+        padding: 3rem 2rem;
+        /* Ensure it takes up available height */
+        min-height: calc(100vh - 120px); 
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 320px 1fr; /* Sidebar for profile, 1fr for ideas */
+        gap: 4rem; /* Increased gap for better spacing */
+        align-items: stretch; /* Stretches both columns to be equal height */
+    }
+
+    /* --- Reusable Glassmorphism Card --- */
+    .glass-card {
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 24px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+
+    /* --- Profile Sidebar --- */
+    .profile-section {
+        height: 100%;
+    }
+
+    .profile-card {
+        padding: 3rem 2rem;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100%; /* Fills the stretched grid column */
+        box-sizing: border-box; 
+        animation: fadeInUp 0.5s ease-out;
+    }
+
+    .avatar-ring {
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
+        background: transparent;
+        box-shadow: 0 0 25px rgba(56, 189, 248, 0.5); /* Blue outer glow */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .avatar {
+        width: 115px;
+        height: 115px;
+        border-radius: 50%;
+        object-fit: cover;
+        background-color: #cbd5e1; /* Gray background for default */
+        border: 3px solid #ffffff; /* White inner border */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .avatar svg {
+        width: 85%;
+        height: 85%;
+        margin-top: 15%; /* Push silhouette down slightly to touch the bottom */
+        fill: #ffffff;
+    }
+
+    .profile-card h2 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .founder-badge {
+        color: #38bdf8;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+    }
+
+    .user-details {
+        margin: 2rem 0;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .user-details p {
+        color: #94a3b8;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+    }
+
+    /* Custom Red Icons */
+    .user-details svg {
+        width: 16px;
+        height: 16px;
+        stroke: #ef4444; /* Red accent */
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .edit-btn {
+        background: #1e293b;
+        color: #e2e8f0;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 0.75rem 1.5rem;
+        border-radius: 99px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-top: auto; /* Pushes the button to the absolute bottom of the card */
+    }
+
+    .edit-btn:hover {
+        background: #334155;
+        color: white;
+    }
+
+    /* --- Ideas Section --- */
+    .ideas-section {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        animation: fadeInUp 0.7s ease-out;
+    }
+
+    .ideas-header {
+        display: flex;
+        flex-direction: column; /* Stack elements vertically */
+        align-items: flex-start; /* Align title to the left */
+        gap: 1.25rem; /* Space between title and button */
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .ideas-header h1 {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0;
+        white-space: nowrap; /* Forces text to stay on a single line */
+    }
+
+    .create-btn {
+        background: #3b82f6; /* Solid Blue */
+        color: white;
+        text-decoration: none;
+        padding: 0.8rem 1.75rem;
+        border-radius: 99px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        transition: all 0.3s ease;
+        border: none;
+        white-space: nowrap;
+        flex-shrink: 0;
+        align-self: center; /* Centers the button horizontally below the title */
+    }
+    
+    .start-building-btn {
+        background: #3b82f6;
+        color: white;
+        text-decoration: none;
+        padding: 0.8rem 1.75rem;
+        border-radius: 99px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        transition: all 0.3s ease;
+        border: none;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .create-btn:hover, .start-building-btn:hover {
+        transform: translateY(-2px);
+        background: #2563eb;
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.6);
+        color: white;
+    }
+
+    /* Ideas Grid */
+    .ideas-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .idea-card {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 180px;
+        cursor: pointer;
+    }
+
+    .idea-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(56, 189, 248, 0.4);
+        box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.1);
+    }
+
+    .idea-title {
+        color: var(--text-primary);
+        font-size: 1.1rem;
+        font-weight: 500;
+        line-height: 1.5;
+        margin-bottom: 1rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .idea-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        padding-top: 1rem;
+        margin-top: auto;
+    }
+
+    .idea-date {
+        color: #64748b;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .view-arrow {
+        color: var(--accent-primary);
+        font-weight: 700;
+        opacity: 0;
+        transform: translateX(-10px);
+        transition: all 0.3s ease;
+    }
+
+    .idea-card:hover .view-arrow {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    /* Empty State */
+    .empty-state {
+        grid-column: 1 / -1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 2rem;
+        border: 1px dashed rgba(255, 255, 255, 0.15);
+        background: rgba(15, 23, 42, 0.4); /* Darker backdrop */
+        border-radius: 24px;
+        text-align: center;
+        flex-grow: 1; /* Helps it expand if needed */
+    }
+
+    .empty-state p {
+        color: #94a3b8;
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 860px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr; /* Stack profile on top of ideas */
+            gap: 2rem;
+        }
+        
+        .profile-card {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+    }
+</style>
+
+<div class="dashboard-wrapper">
+    <div class="dashboard-grid">
+        
+        <!-- Left Sidebar: Profile Summary -->
+        <aside class="profile-section">
+            <div class="glass-card profile-card">
+                
+                <!-- Avatar with Glowing Border -->
+                <div class="avatar-ring">
+                    {% if profile.profile_image %}
+                        <img src="{{ profile.profile_image.url }}" alt="Profile" class="avatar">
+                    {% else %}
+                        <!-- Sleek Default SVG Silhouette -->
+                        <div class="avatar">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Display First & Last Name, fallback to Username -->
+                <h2>
+                    {% if request.user.first_name or request.user.last_name %}
+                        {{ request.user.first_name }} {{ request.user.last_name }}
+                    {% else %}
+                        {{ request.user.username }}
+                    {% endif %}
+                </h2>
+                <span class="founder-badge">Founder</span>
+
+                <div class="user-details">
+                    {% if profile.phone %}
+                        <p>
+                            <!-- Red Phone Icon -->
+                            <svg viewBox="0 0 24 24">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                            </svg>
+                            {{ profile.phone }}
+                        </p>
+                    {% endif %}
+                    {% if profile.country or profile.state %}
+                        <p>
+                            <!-- Red Location Pin Icon -->
+                            <svg viewBox="0 0 24 24">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            {{ profile.state }}, {{ profile.country }}
+                        </p>
+                    {% endif %}
+                </div>
+
+                <a href="/profile/edit/" class="edit-btn">Edit Profile</a>
+            </div>
+        </aside>
+
+        <!-- Right Content: Startup Ideas -->
+        <main class="ideas-section">
+            
+            <div class="ideas-header">
+                <h1>📊 Your Startup Ideas</h1>
+                <a href="/" class="create-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    Create New
+                </a>
+            </div>
+
+            <div class="ideas-grid">
+                {% for idea in ideas %}
+                <!-- Idea Card -->
+                <div class="glass-card idea-card">
+                    <h3 class="idea-title">{{ idea.idea }}</h3>
+                    
+                    <div class="idea-meta">
+                        <!-- Assuming created_at is a datetime object, date filter formats it beautifully -->
+                        <span class="idea-date">🕒 {{ idea.created_at|date:"M d, Y" }}</span>
+                        <span class="view-arrow">View →</span>
+                    </div>
+                </div>
+                
+                {% empty %}
+                <!-- What to show if the user has 0 ideas (Matches Screenshot precisely) -->
+                <div class="empty-state">
+                    <div style="font-size: 3.5rem; margin-bottom: 1rem; transform: rotate(15deg);">🚀</div>
+                    <p>You haven't architected any<br>startup empires yet.</p>
+                    <a href="/" class="start-building-btn">Start Building</a>
+                </div>
+                {% endfor %}
+            </div>
+
+        </main>
+
+    </div>
+</div>
+{% endblock %}

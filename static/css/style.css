@@ -105,3 +105,54 @@ button {
     margin-top: 10px;
     background: #22c55e;
 }
+
+/* USER MENU */
+.user-menu {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.nav-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.username {
+    color: white;
+    font-weight: 500;
+}
+
+/* DROPDOWN */
+.dropdown {
+    position: absolute;
+    top: 45px;
+    right: 0;
+    background: #0d1b2a;
+    border-radius: 10px;
+    padding: 10px;
+    display: none;
+    flex-direction: column;
+    min-width: 150px;
+    z-index: 999;
+}
+
+.dropdown a {
+    color: white;
+    text-decoration: none;
+    padding: 8px;
+    border-radius: 5px;
+}
+
+.dropdown a:hover {
+    background: #1b263b;
+}
+
+/* HOVER */
+.user-menu:hover .dropdown {
+    display: flex;
+}

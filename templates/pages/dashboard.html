@@ -1,28 +1,152 @@
 {% extends "base/base.html" %}
 
 {% block content %}
+<style>
+    /* --- Specific Styles for the Generation Area --- */
+    .workspace-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        animation: fadeInDown 0.6s ease-out;
+    }
+    
+    .workspace-header h2 {
+        font-size: 2.8rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        letter-spacing: -0.5px;
+        color: var(--text-primary);
+    }
 
-<div class="card">
-    <h2>👤 Profile</h2>
+    .workspace-header h2 .highlight {
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
 
-    <img src="{{ profile.profile_image.url }}" width="100" style="border-radius:50%">
+    .workspace-header p {
+        color: var(--text-secondary);
+        font-size: 1.15rem;
+        max-width: 650px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
 
-    <p><b>{{ request.user.username }}</b></p>
-    <p>{{ profile.phone }}</p>
-    <p>{{ profile.country }}, {{ profile.state }}</p>
+    .form-box {
+        width: 100%;
+        animation: fadeInUp 0.6s ease-out 0.2s backwards;
+    }
 
-    <a href="/profile/edit/">Edit Profile</a>
+    /* --- Interactive Suggestion Pills --- */
+    .suggestions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        justify-content: center;
+        margin-top: 1.5rem;
+    }
+
+    .suggestion-pill {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: var(--text-secondary);
+        padding: 0.6rem 1.2rem;
+        border-radius: 99px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        backdrop-filter: blur(4px);
+    }
+
+    .suggestion-pill:hover {
+        background: rgba(56, 189, 248, 0.1);
+        border-color: var(--accent-primary);
+        color: var(--text-primary);
+        transform: translateY(-2px);
+    }
+
+    /* --- Button Loading Spinner --- */
+    .spinner {
+        display: none;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<!-- Hero Section to Hook the User -->
+<div class="workspace-header">
+    <h2>Turn Your Vision Into an <span class="highlight">Empire</span></h2>
+    <p>Describe your startup idea below, and let our AI instantly architect your business plan, tech stack, and marketing strategy.</p>
 </div>
 
-<h1>📊 Your Startup Ideas</h1>
+<!-- The Main Generation Form -->
+<form method="POST" class="form-box" id="ideaForm" onsubmit="showLoader()">
+    {% csrf_token %}
+    
+    <div class="input-group">
+        <!-- Reuses the premium textarea styles from your base.html -->
+        <textarea 
+            id="ideaInput"
+            name="idea" 
+            placeholder="E.g., An AI-powered app that helps people grow indoor plants by analyzing photos of their leaves..." 
+            required
+        ></textarea>
 
-{% for idea in ideas %}
-<div class="card">
-    <h3>{{ idea.idea }}</h3>
-    <p>{{ idea.created_at }}</p>
-</div>
-{% endfor %}
+        <!-- Reuses the premium generate-btn styles from your base.html -->
+        <button type="submit" class="generate-btn" id="submitBtn">
+            <span id="btnText">Build My Empire 🚀</span>
+            <div id="btnSpinner" class="spinner"></div>
+        </button>
+    </div>
+    
+    <!-- Quick-start Suggestions -->
+    <div class="suggestions">
+        <span class="suggestion-pill" onclick="fillIdea('A marketplace connecting local chefs with people hosting dinner parties.')">👨‍🍳 Local Chef Marketplace</span>
+        <span class="suggestion-pill" onclick="fillIdea('A SaaS platform that automates social media posting for real estate agents.')">🏡 Real Estate SaaS</span>
+        <span class="suggestion-pill" onclick="fillIdea('An eco-friendly subscription box delivering sustainable home goods.')">🌱 Eco Subscription Box</span>
+    </div>
+</form>
 
-<a href="/">➕ Create New</a>
+<!-- Page Specific JavaScript -->
+<script>
+    // Fills the textarea when a user clicks a suggestion pill
+    function fillIdea(text) {
+        const textarea = document.getElementById('ideaInput');
+        textarea.value = text;
+        textarea.focus();
+    }
 
+    // Handles the smooth loading animation on the form button
+    function showLoader() {
+        const btnText = document.getElementById('btnText');
+        const btnSpinner = document.getElementById('btnSpinner');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Swap text for spinner
+        btnText.style.display = 'none';
+        btnSpinner.style.display = 'block';
+        
+        // Make button look disabled while loading
+        submitBtn.style.opacity = '0.8';
+        submitBtn.style.pointerEvents = 'none';
+        submitBtn.style.transform = 'translateY(0)'; // lock hover effect
+    }
+</script>
 {% endblock %}

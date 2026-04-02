@@ -1,19 +1,327 @@
 {% extends "base/base.html" %}
 
 {% block content %}
+<style>
+    /* --- Edit Profile Specific Layout --- */
+    .edit-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        /* Takes up the full height minus the navbar */
+        min-height: calc(100vh - 120px); 
+        width: 100%;
+        padding: 2rem 1rem;
+    }
 
-<h2>Edit Profile</h2>
+    /* --- Glassmorphism Card --- */
+    .edit-card {
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 24px;
+        padding: 3rem 2.5rem;
+        width: 100%;
+        max-width: 600px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+        animation: fadeInUp 0.5s ease-out;
+    }
 
-<form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
+    .edit-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
 
-    <input type="text" name="phone" value="{{ profile.phone }}" placeholder="Phone"><br><br>
-    <input type="text" name="country" value="{{ profile.country }}" placeholder="Country"><br><br>
-    <input type="text" name="state" value="{{ profile.state }}" placeholder="State"><br><br>
+    .edit-header h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
 
-    <input type="file" name="profile_image"><br><br>
+    .edit-header p {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+    }
 
-    <button type="submit">Update</button>
-</form>
+    /* --- Custom Avatar Upload Styling --- */
+    .avatar-upload-section {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
 
+    .avatar-preview {
+        position: relative; /* Essential for absolute positioning of child img */
+        width: 120px;
+        height: 120px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background-color: #cbd5e1;
+        border: 2px solid #38bdf8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+    }
+
+    .avatar-preview img {
+        position: absolute; /* Breaks free from flexbox shrinking */
+        top: 0;
+        left: 0;
+        width: 100%; /* Forces image to span full width */
+        height: 100%; /* Forces image to span full height */
+        object-fit: cover; /* Ensures the image covers the circle perfectly */
+        object-position: center top; /* Pins the top of the photo to keep the forehead visible */
+    }
+
+    .avatar-preview svg {
+        width: 60%;
+        height: 60%;
+        fill: #ffffff;
+    }
+
+    .upload-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    /* Hide the actual ugly file input */
+    input[type="file"] {
+        display: none;
+    }
+
+    /* Style the label to look like a premium button */
+    .custom-file-upload {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-primary);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0.6rem 1.25rem;
+        border-radius: 99px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .custom-file-upload:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .file-name-display {
+        font-size: 0.8rem;
+        color: #94a3b8;
+    }
+
+    /* --- Form Elements --- */
+    .edit-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .input-row {
+        display: flex;
+        gap: 1rem;
+        width: 100%;
+    }
+
+    .input-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        flex: 1;
+    }
+
+    .input-wrapper label {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-left: 0.25rem;
+    }
+
+    .edit-input {
+        width: 100%;
+        background-color: rgba(15, 23, 42, 0.6);
+        color: var(--text-primary);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 0.85rem 1.2rem;
+        font-size: 1rem;
+        outline: none;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+
+    .edit-input:focus {
+        border-color: var(--accent-primary);
+        background-color: rgba(15, 23, 42, 0.8);
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+
+    .btn-group {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .save-btn {
+        background: var(--accent-gradient);
+        color: white;
+        border: none;
+        padding: 0.9rem 2rem;
+        font-size: 1.05rem;
+        font-weight: 600;
+        border-radius: 12px;
+        cursor: pointer;
+        box-shadow: 0 4px 15px -3px rgba(59, 130, 246, 0.4);
+        transition: all 0.3s ease;
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .save-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px -5px rgba(59, 130, 246, 0.6);
+    }
+
+    .cancel-btn {
+        background: transparent;
+        color: var(--text-secondary);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0.9rem 2rem;
+        font-size: 1.05rem;
+        font-weight: 500;
+        border-radius: 12px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+
+    .cancel-btn:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-primary);
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 480px) {
+        .input-row {
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+        .btn-group {
+            flex-direction: column-reverse;
+        }
+        .cancel-btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="edit-wrapper">
+    <div class="edit-card">
+        
+        <div class="edit-header">
+            <h2>Edit Profile</h2>
+            <p>Update your personal details and public presence.</p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="edit-form">
+            {% csrf_token %}
+            
+            <!-- Custom Styled Avatar Upload -->
+            <div class="avatar-upload-section">
+                <div class="avatar-preview">
+                    {% if profile.profile_image %}
+                        <img id="imagePreview" src="{{ profile.profile_image.url }}" alt="Profile">
+                    {% else %}
+                        <svg id="defaultIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                        <img id="imagePreview" src="#" alt="Profile" style="display: none;">
+                    {% endif %}
+                </div>
+                
+                <div class="upload-controls">
+                    <label for="profile_image" class="custom-file-upload">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        Choose Image
+                    </label>
+                    <!-- Actual hidden file input -->
+                    <input type="file" id="profile_image" name="profile_image" accept="image/*">
+                    <span id="fileName" class="file-name-display">No file chosen</span>
+                </div>
+            </div>
+
+            <!-- Phone Number -->
+            <div class="input-wrapper">
+                <label for="phone">Phone Number</label>
+                <input type="text" name="phone" id="phone" class="edit-input" value="{{ profile.phone }}" placeholder="+1 234 567 8900">
+            </div>
+
+            <!-- Country & State Row -->
+            <div class="input-row">
+                <div class="input-wrapper">
+                    <label for="country">Country</label>
+                    <input type="text" name="country" id="country" class="edit-input" value="{{ profile.country }}" placeholder="e.g. India">
+                </div>
+                <div class="input-wrapper">
+                    <label for="state">State / Province</label>
+                    <input type="text" name="state" id="state" class="edit-input" value="{{ profile.state }}" placeholder="e.g. Uttar Pradesh">
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="btn-group">
+                <a href="/dashboard/" class="cancel-btn">Cancel</a>
+                <button type="submit" class="save-btn">Update Profile</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<script>
+    // JavaScript to handle file selection preview and updating the file name text
+    const fileInput = document.getElementById('profile_image');
+    const fileNameDisplay = document.getElementById('fileName');
+    const imagePreview = document.getElementById('imagePreview');
+    const defaultIcon = document.getElementById('defaultIcon');
+
+    fileInput.addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+            // Update file name text
+            fileNameDisplay.textContent = this.files[0].name;
+
+            // Show a preview of the selected image
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+                if (defaultIcon) {
+                    defaultIcon.style.display = 'none';
+                }
+            }
+            reader.readAsDataURL(this.files[0]);
+        } else {
+            fileNameDisplay.textContent = "No file chosen";
+        }
+    });
+</script>
 {% endblock %}

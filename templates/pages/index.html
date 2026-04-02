@@ -2,7 +2,7 @@
 
 {% block content %}
 <style>
-    /* --- Smooth Scrolling for the 'Get Started' anchor --- */
+    /* --- Smooth Scrolling for the page --- */
     html {
         scroll-behavior: smooth;
     }
@@ -15,34 +15,21 @@
         display: block !important; 
     }
 
-    /* --- Card-based Hero Section --- */
-    .hero-section {
-        width: 100vw;
-        height: calc(100vh - 80px);
-        padding: 1rem 1.5rem;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-color: var(--bg-color);
-    }
-
-    .hero-card {
+    /* --- Fullscreen Background Hero --- */
+    .fullscreen-hero {
         position: relative;
-        width: 100%;
-        height: 100%;
-        max-width: 1600px;
+        width: 100vw;
+        /* Viewport height minus the approximate height of the navbar */
+        height: calc(100vh - 80px); 
         background-image: url('/static/images/bg_image.png');
         background-size: cover;
         background-position: center;
-        /* Parallax removed so it acts like a normal card */
-        border-radius: 24px;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        /* Removed background-attachment: fixed; so the button scrolls perfectly WITH the image */
         overflow: hidden;
     }
 
     /* Subtle gradient overlay to make sure the button and text stand out */
-    .hero-card::before {
+    .fullscreen-hero::before {
         content: '';
         position: absolute;
         inset: 0;
@@ -54,8 +41,8 @@
     .get-started-wrapper {
         position: absolute;
         z-index: 10;
-        /* Moved down slightly to create space below the text */
-        top: 68%;
+        /* Increased from 65% to 75% to place it below the AI-Powered text */
+        top: 75%; 
         left: 28%;
         transform: translate(-50%, -50%);
     }
@@ -67,9 +54,8 @@
         background: var(--accent-gradient);
         color: white;
         text-decoration: none;
-        /* Reduced padding and font-size to make the button smaller */
-        padding: 0.85rem 2.5rem;
-        font-size: 1.05rem;
+        padding: 1.25rem 3.5rem;
+        font-size: 1.2rem;
         font-weight: 700;
         border-radius: 99px;
         box-shadow: 0 10px 30px -5px rgba(59, 130, 246, 0.6);
@@ -85,37 +71,44 @@
         color: white;
     }
 
-    /* --- Workspace / Form Section (Below the fold) --- */
-    .workspace-section {
+    /* --- NEW: Landing Page Sections --- */
+    .landing-section {
         padding: 6rem 2rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
         background-color: var(--bg-color);
-        min-height: 100vh;
+        position: relative;
     }
 
-    /* --- Scoped Styles for Landing Page Content --- */
-    .hero-text {
-        text-align: center;
-        margin-bottom: 3rem;
-        animation: fadeInDown 0.8s ease-out;
+    .landing-section.alt-bg {
+        background-color: rgba(15, 23, 42, 0.3); /* Slightly different background for contrast */
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
-    
-    .hero-text h1 {
-        font-size: 3rem;
+
+    .section-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .section-title {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    .section-title h2 {
+        font-size: 2.5rem;
         font-weight: 800;
+        color: var(--text-primary);
         margin-bottom: 1rem;
         letter-spacing: -1px;
     }
-    
-    .hero-text h1 .highlight {
+
+    .section-title h2 .highlight {
         background: var(--accent-gradient);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
 
-    .hero-text p {
+    .section-title p {
         color: var(--text-secondary);
         font-size: 1.15rem;
         max-width: 600px;
@@ -123,58 +116,115 @@
         line-height: 1.6;
     }
 
-    .form-box {
-        width: 100%;
-        max-width: 800px;
+    /* --- Features Grid --- */
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2.5rem;
     }
 
-    /* --- Interactive Suggestion Pills --- */
-    .suggestions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-        justify-content: center;
-        margin-top: 1.5rem;
-        animation: fadeIn 1s ease-out 0.3s backwards;
+    .feature-card {
+        background: rgba(30, 41, 59, 0.4);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 24px;
+        padding: 2.5rem;
+        transition: all 0.3s ease;
+        text-align: left;
     }
 
-    .suggestion-pill {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        color: var(--text-secondary);
-        padding: 0.5rem 1rem;
-        border-radius: 99px;
-        font-size: 0.85rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        backdrop-filter: blur(4px);
+    .feature-card:hover {
+        transform: translateY(-10px);
+        border-color: rgba(56, 189, 248, 0.3);
+        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(56, 189, 248, 0.1);
     }
 
-    .suggestion-pill:hover {
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
         background: rgba(56, 189, 248, 0.1);
-        border-color: var(--accent-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        color: var(--accent-primary);
+    }
+
+    .feature-card h3 {
+        font-size: 1.3rem;
+        font-weight: 700;
         color: var(--text-primary);
-        transform: translateY(-2px);
+        margin-bottom: 1rem;
     }
 
-    /* --- Button Loading Spinner --- */
-    .spinner {
-        display: none;
-        width: 20px;
-        height: 20px;
-        border: 3px solid rgba(255,255,255,0.3);
+    .feature-card p {
+        color: var(--text-secondary);
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+
+    /* --- Steps Grid --- */
+    .steps-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        counter-reset: step-counter;
+    }
+
+    .step-card {
+        position: relative;
+        padding: 2.5rem;
+        text-align: center;
+    }
+
+    .step-number {
+        width: 48px;
+        height: 48px;
+        background: var(--accent-gradient);
+        color: white;
         border-radius: 50%;
-        border-top-color: white;
-        animation: spin 1s ease-in-out infinite;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        font-weight: 800;
+        margin: 0 auto 1.5rem;
+        box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.5);
     }
 
-    @keyframes spin {
-        to { transform: rotate(360deg); }
+    .step-card h3 {
+        font-size: 1.2rem;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
     }
-    
-    @keyframes fadeInDown {
-        from { opacity: 0; transform: translateY(-20px); }
-        to { opacity: 1; transform: translateY(0); }
+
+    .step-card p {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    /* Line connecting steps (visible on desktop) */
+    @media (min-width: 900px) {
+        .step-card:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 3.5rem;
+            right: -1rem;
+            width: 2rem;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 0;
+        }
+    }
+
+    /* --- Bottom CTA --- */
+    .bottom-cta {
+        text-align: center;
+        padding: 6rem 2rem;
+        background: radial-gradient(circle at center, rgba(14, 165, 233, 0.1) 0%, var(--bg-color) 70%);
     }
 
     @keyframes fadeInUp {
@@ -183,75 +233,87 @@
     }
 </style>
 
-<!-- Hero Card Section -->
-<div class="hero-section">
-    <div class="hero-card">
-        <div class="get-started-wrapper">
-            <!-- Smooth scrolls to the #workspace section below -->
-            <a href="#workspace" class="get-started-btn">Get Started 🚀</a>
-        </div>
+<!-- Fullscreen Hero Image Area -->
+<div class="fullscreen-hero">
+    <div class="get-started-wrapper">
+        <!-- Directs users to dashboard -->
+        <a href="/dashboard/" class="get-started-btn">Get Started 🚀</a>
     </div>
 </div>
 
-<!-- The Workspace Area (Scroll Target) -->
-<div id="workspace" class="workspace-section">
-    <!-- Hero Text moved down here to introduce the form -->
-    <div class="hero-text">
-        <h1>Turn Your Vision Into an <span class="highlight">Empire</span></h1>
-        <p>Describe your startup idea below, and let our AI instantly architect your business plan, tech stack, and marketing strategy.</p>
+<!-- Features Section -->
+<section class="landing-section">
+    <div class="section-inner">
+        <div class="section-title">
+            <h2>Everything You Need to <span class="highlight">Build an Empire</span></h2>
+            <p>Our AI doesn't just give you ideas. It acts as your personal co-founder, architecting every detail of your business from scratch.</p>
+        </div>
+
+        <div class="features-grid">
+            <!-- Feature 1 -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                </div>
+                <h3>Business Planning</h3>
+                <p>Generate investor-ready business plans instantly. We define your target audience, revenue models, and unique value propositions.</p>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                </div>
+                <h3>Tech Stack Architecture</h3>
+                <p>No technical background? No problem. Get a complete, scalable technology stack tailored specifically for your app or software.</p>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                </div>
+                <h3>Go-To-Market Strategy</h3>
+                <p>Discover exactly how to acquire your first 1,000 customers with customized marketing channels and growth hacks.</p>
+            </div>
+        </div>
     </div>
+</section>
 
-    <!-- The Main Form -->
-    <form method="POST" class="form-box" id="ideaForm" onsubmit="showLoader()">
-        {% csrf_token %}
-        
-        <div class="input-group">
-            <textarea 
-                id="ideaInput"
-                name="idea" 
-                placeholder="E.g., An AI-powered app that helps people grow indoor plants by analyzing photos of their leaves..." 
-                required
-            ></textarea>
-
-            <!-- Upgraded Button using base.html class -->
-            <button type="submit" class="generate-btn" id="submitBtn">
-                <span id="btnText">Build My Empire 🚀</span>
-                <div id="btnSpinner" class="spinner"></div>
-            </button>
+<!-- How it Works Section -->
+<section class="landing-section alt-bg">
+    <div class="section-inner">
+        <div class="section-title">
+            <h2>From Vision to Reality in <span class="highlight">3 Steps</span></h2>
+            <p>Stop overthinking. Start building. Here is how Empire Builder GPT turns your raw ideas into actionable blueprints.</p>
         </div>
-        
-        <!-- Quick-start Suggestions -->
-        <div class="suggestions">
-            <span class="suggestion-pill" onclick="fillIdea('A marketplace connecting local chefs with people hosting dinner parties.')">👨‍🍳 Local Chef Marketplace</span>
-            <span class="suggestion-pill" onclick="fillIdea('A SaaS platform that automates social media posting for real estate agents.')">🏡 Real Estate SaaS</span>
-            <span class="suggestion-pill" onclick="fillIdea('An eco-friendly subscription box delivering sustainable home goods.')">🌱 Eco Subscription Box</span>
+
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <h3>Share Your Vision</h3>
+                <p>Write a single sentence about the problem you want to solve or the product you want to build.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <h3>AI Architecting</h3>
+                <p>Our advanced models analyze the market and instantly generate a comprehensive, structured blueprint.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <h3>Launch Your Empire</h3>
+                <p>Follow the generated step-by-step roadmap, save your ideas to your dashboard, and start executing.</p>
+            </div>
         </div>
-    </form>
-</div>
+    </div>
+</section>
 
-<!-- Page Specific JavaScript -->
-<script>
-    // Fills the textarea when a user clicks a suggestion pill
-    function fillIdea(text) {
-        const textarea = document.getElementById('ideaInput');
-        textarea.value = text;
-        textarea.focus();
-    }
+<!-- Bottom CTA -->
+<section class="bottom-cta">
+    <div class="section-inner">
+        <h2 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem;">Ready to build something amazing?</h2>
+        <a href="/dashboard/" class="get-started-btn" style="position: static; transform: none; animation: none;">Start Building Now 🚀</a>
+    </div>
+</section>
 
-    // Handles the smooth loading animation on the form button
-    function showLoader() {
-        const btnText = document.getElementById('btnText');
-        const btnSpinner = document.getElementById('btnSpinner');
-        const submitBtn = document.getElementById('submitBtn');
-
-        // Swap text for spinner
-        btnText.style.display = 'none';
-        btnSpinner.style.display = 'block';
-        
-        // Make button look disabled while loading
-        submitBtn.style.opacity = '0.8';
-        submitBtn.style.pointerEvents = 'none';
-        submitBtn.style.transform = 'translateY(0)'; // lock hover effect
-    }
-</script>
 {% endblock %}

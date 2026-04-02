@@ -118,6 +118,14 @@ def dashboard(request):
         "profile": profile   # PASS PROFILE
     })
 
+#PROFILE
+def profile_view(request):
+    if not request.user.is_authenticated:
+        return redirect("login")
+
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
+    return render(request, 'pages/profile.html', {'profile': profile})
+
 # EDIT PROFILE
 def edit_profile(request):
     if not request.user.is_authenticated:

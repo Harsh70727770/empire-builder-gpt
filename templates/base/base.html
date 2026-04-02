@@ -50,9 +50,9 @@
         }
 
         .nav-container {
-            max-width: 1200px;
+            max-width: 100%; /* Pushes items to the extreme left and right */
+            padding: 1.25rem 4%; /* Gives flexible breathing room on the screen edges */
             margin: 0 auto;
-            padding: 1.25rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -68,6 +68,7 @@
             align-items: center;
             gap: 0.5rem;
             letter-spacing: -0.5px;
+            white-space: nowrap; /* Prevents the text from wrapping onto two lines */
         }
 
         .logo .highlight {
@@ -83,7 +84,7 @@
             gap: 2.5rem;
         }
 
-        .nav-links a {
+        .nav-links > a {
             color: var(--text-secondary);
             text-decoration: none;
             font-weight: 500;
@@ -92,11 +93,11 @@
             position: relative;
         }
 
-        .nav-links a:hover {
+        .nav-links > a:hover {
             color: var(--text-primary);
         }
 
-        .nav-links a::after {
+        .nav-links > a::after {
             content: '';
             position: absolute;
             width: 0;
@@ -107,11 +108,11 @@
             transition: width 0.3s ease;
         }
 
-        .nav-links a:hover::after {
+        .nav-links > a:hover::after {
             width: 100%;
         }
 
-        .nav-links a.active {
+        .nav-links > a.active {
             color: var(--text-primary);
         }
 
@@ -135,21 +136,108 @@
             transform: translateY(-1px);
         }
 
-        /* --- Main Layout --- */
-        .container {
-            max-width: 800px;
-            margin: 4rem auto;
-            padding: 0 2rem;
+        /* --- User Menu & Dropdown --- */
+        .user-menu {
+            position: relative; /* Essential for dropdown positioning */
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            padding: 0.5rem 0;
+        }
+
+        .nav-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            object-position: center top; /* Ensures the face/forehead isn't cut off */
+            border: 2px solid var(--accent-primary);
+            background-color: var(--surface-color);
+        }
+
+        .username {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: color 0.2s ease;
+        }
+        
+        .user-menu:hover .username {
+            color: var(--accent-primary);
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 100%; /* Position directly below the user menu */
+            right: 0; /* Align to the right edge */
+            margin-top: 0.5rem;
+            background: rgba(15, 23, 42, 0.95); /* Deep slate background */
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            min-width: 160px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            
+            /* Hidden by default with animation ready */
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        /* Show the dropdown when the user hovers over the entire .user-menu div */
+        .user-menu:hover .dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown a {
+            padding: 0.8rem 1.25rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background 0.2s ease, color 0.2s ease;
+            display: block; /* Ensure it takes up the full width */
+        }
+
+        .dropdown a:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background-color: rgba(255, 255, 255, 0.08);
+            margin: 0;
+        }
+
+        .logout-link {
+            color: #ef4444 !important; /* Soft red for logout */
+        }
+
+        .logout-link:hover {
+            background: rgba(239, 68, 68, 0.1) !important;
+            color: #f87171 !important;
+        }
+
+        /* --- Main Content Area (Dynamic) --- */
+        .main-content {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
             width: 100%;
-            animation: fadeIn 0.8s ease-out;
         }
 
-        /* --- Premium Form Elements (For child templates) --- */
+        /* --- Global Form Utilities (Recovered for child templates) --- */
         .input-group {
             width: 100%;
             display: flex;
@@ -211,21 +299,135 @@
             transform: translateY(0);
         }
 
-        /* Subtle entrance animation */
+        /* --- Footer Section --- */
+        .footer {
+            background: rgba(11, 17, 32, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 4rem 2rem 2rem;
+            margin-top: auto; /* Pushes footer to bottom */
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.5fr 2fr;
+            gap: 3rem;
+        }
+
+        .footer-brand p {
+            color: var(--text-secondary);
+            margin-top: 1.25rem;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            max-width: 350px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 5rem;
+            justify-content: flex-end;
+        }
+
+        .link-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .link-group h4 {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .link-group a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s ease;
+        }
+
+        .link-group a:hover {
+            color: var(--accent-primary);
+        }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 3rem auto 0;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: rgba(148, 163, 184, 0.6);
+            font-size: 0.85rem;
+        }
+
+        /* --- Responsive Adjustments --- */
+        @media (max-width: 900px) {
+            .nav-links { gap: 1.5rem; }
+            .logo { font-size: 1.3rem; }
+            .nav-container { padding: 1.25rem 3%; }
+        }
+
+        @media (max-width: 768px) {
+            /* Gracefully stack the navbar on mobile */
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1.25rem 1rem;
+            }
+            .nav-links {
+                width: 100%;
+                justify-content: center;
+                gap: 1.5rem;
+                flex-wrap: wrap; /* Allows items to wrap if screen is very thin */
+            }
+            
+            /* Center the footer layout for mobile */
+            .footer-container {
+                grid-template-columns: 1fr;
+            }
+            .footer-brand {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .footer-links {
+                justify-content: center;
+                gap: 2.5rem;
+                flex-wrap: wrap;
+                text-align: center;
+            }
+            .link-group {
+                align-items: center;
+            }
+            .footer-bottom {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-links { gap: 1rem; }
+            .nav-links > a { font-size: 0.9rem; }
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .nav-links { gap: 1rem; }
-            .nav-links a:not(.login-btn) { display: none; } /* Hide links on mobile for cleaner look */
         }
     </style>
 </head>
 <body>
 
+    <!-- 🌟 NAVIGATION BAR -->
     <nav class="navbar">
         <div class="nav-container">
             <!-- Left -->
@@ -238,25 +440,94 @@
                 <a href="/" class="active">Home</a>
                 <a href="#">About</a>
                 <a href="#">Contact</a>
+
+                {% if request.user.is_authenticated %}
+                <!-- USER MENU WITH DROPDOWN -->
+                <div class="user-menu">
+                    {% if profile.profile_image %}
+                        <img src="{{ profile.profile_image.url }}" class="nav-avatar" alt="Avatar">
+                    {% elif request.user.profile.profile_image %}
+                        <img src="{{ request.user.profile.profile_image.url }}" class="nav-avatar" alt="Avatar">
+                    {% else %}
+                        <!-- Fallback SVG if user has no image -->
+                        <div class="nav-avatar" style="display:flex; align-items:center; justify-content:center;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#f8fafc"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        </div>
+                    {% endif %}
+                    
+                    <span class="username">
+                        {{ request.user.username }} 
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </span>
+
+                    <div class="dropdown">
+                        <a href="/dashboard/">Dashboard</a>
+                        <a href="{% url 'profile' %}">My Profile</a>
+                        <div class="dropdown-divider"></div>
+                        <a href="/logout/" class="logout-link">Logout</a>
+                    </div>
+                </div>
+                {% else %}
                 <a href="/login/" class="login-btn">Login</a>
+                {% endif %}
             </div>
         </div>
     </nav>
 
-    <main class="container">
+    <!-- 🌟 DYNAMIC MAIN CONTENT -->
+    <main class="main-content">
         {% block content %}
-        <!-- Preview Content: This accurately reflects your screenshot but upgraded -->
-        <div class="input-group">
-            <textarea placeholder="Enter your startup idea..."></textarea>
-            <button class="generate-btn">Generate 🚀</button>
-        </div>
+        <!-- Child templates will inject their content right here. -->
         {% endblock %}
     </main>
 
-    <!-- Fallback for empty JS file so it doesn't throw 404 in preview -->
+    <!-- 🌟 BEAUTIFUL FOOTER -->
+    <footer class="footer">
+        <div class="footer-container">
+            <!-- Brand Column -->
+            <div class="footer-brand">
+                <a href="/" class="logo">
+                    🚀 Empire Builder <span class="highlight">GPT</span>
+                </a>
+                <p>An AI-powered startup assistant designed to architect your vision, business plan, and marketing strategy instantly.</p>
+            </div>
+            
+            <!-- Links Columns -->
+            <div class="footer-links">
+                <div class="link-group">
+                    <h4>Platform</h4>
+                    <a href="/">Home</a>
+                    <a href="/dashboard/">Dashboard</a>
+                    <a href="#">Features</a>
+                    <a href="#">Pricing</a>
+                </div>
+                <div class="link-group">
+                    <h4>Resources</h4>
+                    <a href="#">Help Center</a>
+                    <a href="#">API Documentation</a>
+                    <a href="#">Community</a>
+                </div>
+                <div class="link-group">
+                    <h4>Company</h4>
+                    <a href="#">About Us</a>
+                    <a href="#">Contact Support</a>
+                    <a href="#">Privacy Policy</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 Empire Builder GPT. All rights reserved.</p>
+            <div style="display: flex; gap: 1.5rem;">
+                <a href="#" style="color: inherit; text-decoration: none;">Terms of Service</a>
+                <a href="#" style="color: inherit; text-decoration: none;">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Global JavaScript -->
     <script>
-        // Your custom JS logic would go here, replacing /static/js/main.js
-        console.log("Empire Builder GPT Initialized");
+        console.log("Empire Builder GPT Framework Loaded");
     </script>
 </body>
 </html>
