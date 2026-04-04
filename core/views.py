@@ -110,12 +110,35 @@ def dashboard(request):
     if not request.user.is_authenticated:
         return redirect("login")
 
+    profile = UserProfile.objects.get(user=request.user)
+
+    if request.method == "POST":
+        idea = request.POST.get("idea")
+
+        plan = generate_startup_plan(idea)
+        score = generate_idea_score(idea)
+        roadmap = generate_roadmap(idea)
+        tech = generate_tech_stack(idea)
+
+        # save idea
+        StartupIdea.objects.create(
+            user=request.user,
+            idea=idea
+        )
+
+        return render(request, "pages/result.html", {
+            "plan": plan,
+            "score": score,
+            "roadmap": roadmap,
+            "tech": tech
+        })
+
+    # NORMAL LOAD
     ideas = StartupIdea.objects.filter(user=request.user).order_by("-created_at")
-    profile = UserProfile.objects.get(user=request.user)  
 
     return render(request, "pages/dashboard.html", {
         "ideas": ideas,
-        "profile": profile   # PASS PROFILE
+        "profile": profile
     })
 
 #PROFILE

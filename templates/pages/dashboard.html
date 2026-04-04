@@ -14,17 +14,17 @@
         font-weight: 800;
         margin-bottom: 1rem;
         letter-spacing: -0.5px;
-        color: var(--text-primary);
+        color: var(--text-primary, #ffffff);
     }
 
     .workspace-header h2 .highlight {
-        background: var(--accent-gradient);
+        background: var(--accent-gradient, linear-gradient(to right, #38bdf8, #818cf8));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
 
     .workspace-header p {
-        color: var(--text-secondary);
+        color: var(--text-secondary, #94a3b8);
         font-size: 1.15rem;
         max-width: 650px;
         margin: 0 auto;
@@ -48,7 +48,7 @@
     .suggestion-pill {
         background: rgba(255, 255, 255, 0.03);
         border: 1px solid rgba(255, 255, 255, 0.08);
-        color: var(--text-secondary);
+        color: var(--text-secondary, #94a3b8);
         padding: 0.6rem 1.2rem;
         border-radius: 99px;
         font-size: 0.9rem;
@@ -59,8 +59,8 @@
 
     .suggestion-pill:hover {
         background: rgba(56, 189, 248, 0.1);
-        border-color: var(--accent-primary);
-        color: var(--text-primary);
+        border-color: var(--accent-primary, #38bdf8);
+        color: var(--text-primary, #ffffff);
         transform: translateY(-2px);
     }
 
@@ -87,6 +87,64 @@
     @keyframes fadeInUp {
         from { opacity: 0; transform: translateY(20px); }
         to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* --- NEW ENHANCEMENTS: Features Section --- */
+    .features-section {
+        margin-top: 4rem;
+        animation: fadeInUp 0.6s ease-out 0.4s backwards;
+        width: 100%;
+    }
+
+    .features-title {
+        text-align: center;
+        color: var(--text-secondary, #94a3b8);
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .feature-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(4px);
+    }
+
+    .feature-card:hover {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.15);
+        transform: translateY(-4px);
+    }
+
+    .feature-icon {
+        font-size: 2.2rem;
+        margin-bottom: 1rem;
+    }
+
+    .feature-card h3 {
+        color: var(--text-primary, #f8fafc);
+        font-size: 1.15rem;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .feature-card p {
+        color: var(--text-secondary, #94a3b8);
+        font-size: 0.9rem;
+        line-height: 1.6;
+        margin: 0;
     }
 </style>
 
@@ -123,6 +181,28 @@
         <span class="suggestion-pill" onclick="fillIdea('An eco-friendly subscription box delivering sustainable home goods.')">🌱 Eco Subscription Box</span>
     </div>
 </form>
+
+<!-- NEW ENHANCEMENTS: What's Included Section -->
+<div class="features-section">
+    <h3 class="features-title">What gets built in seconds?</h3>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Business Plan</h3>
+            <p>Comprehensive market analysis, monetization models, and a structured growth roadmap.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">💻</div>
+            <h3>Tech Stack</h3>
+            <p>Tailored recommendations for frameworks, databases, and deployment architectures.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🎯</div>
+            <h3>Marketing Strategy</h3>
+            <p>Actionable go-to-market plans, target audience profiles, and acquisition channels.</p>
+        </div>
+    </div>
+</div>
 
 <!-- Page Specific JavaScript -->
 <script>
