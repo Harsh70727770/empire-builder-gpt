@@ -33,7 +33,15 @@ def home(request):
 
 # DOWNLOAD PDF
 def download_pdf(request):
-    data = request.session.get("data")
+    data = {
+        "plan": request.session.get("plan"),
+        "score": request.session.get("score"),
+        "roadmap": request.session.get("roadmap"),
+        "tech": request.session.get("tech"),
+    }
+
+    if not any(data.values()):
+        return FileResponse(open("static/error.pdf", "rb"), as_attachment=True)
 
     filename = generate_pdf(data)
     return FileResponse(open(filename, "rb"), as_attachment=True)

@@ -1,6 +1,9 @@
 {% extends "base/base.html" %}
 
 {% block content %}
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
     /* --- Header Styles --- */
     .results-header {
@@ -21,12 +24,11 @@
         font-size: 1.1rem;
     }
 
-    /* --- Grid Layout for Cards --- */
+    /* --- Grid Layout for Cards (Updated to 1 column) --- */
     .results-grid {
         display: grid;
-        /* Enforces exactly a 2x2 grid on larger screens */
-        grid-template-columns: repeat(2, 1fr);
-        gap: 2rem;
+        grid-template-columns: 1fr; /* Changed to 1 column layout */
+        gap: 2.5rem;
         margin-bottom: 3rem;
         animation: fadeInUp 0.6s ease-out 0.2s backwards;
     }
@@ -46,7 +48,7 @@
     }
 
     .result-card:hover {
-        transform: translateY(-5px);
+        transform: translateY(-3px);
         border-color: rgba(56, 189, 248, 0.3);
     }
 
@@ -68,21 +70,46 @@
         gap: 8px;
     }
 
+    /* --- New Card Body Layout (Text + Chart) --- */
+    .card-body {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr; /* Text takes 60%, Chart takes 40% */
+        gap: 1.5rem;
+        align-items: stretch;
+    }
+
     /* --- Content Formatting --- */
     .result-content {
         background: rgba(0, 0, 0, 0.2);
         border-radius: 8px;
-        padding: 1rem;
+        padding: 1.2rem;
         color: #cbd5e1;
-        font-family: 'Segoe UI', system-ui, sans-serif; /* Override monospace */
+        font-family: 'Segoe UI', system-ui, sans-serif;
         font-size: 0.95rem;
         line-height: 1.7;
-        white-space: pre-wrap; /* Crucial: Wraps text properly */
+        white-space: pre-wrap;
         word-wrap: break-word;
-        max-height: 350px;
+        max-height: 450px; /* Increased height for better reading */
         overflow-y: auto;
-        flex-grow: 1;
         margin: 0;
+    }
+
+    /* Chart Container Styles */
+    .chart-container {
+        background: rgba(0, 0, 0, 0.15);
+        border-radius: 8px;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 300px;
+        border: 1px solid rgba(255, 255, 255, 0.03);
+        position: relative;
+    }
+
+    .chart-container canvas {
+        max-width: 100%;
+        max-height: 400px;
     }
 
     /* Highlighted bold text inside the results */
@@ -91,7 +118,7 @@
         font-weight: 700;
     }
 
-    /* Custom Scrollbar for the content boxes */
+    /* Custom Scrollbar */
     .result-content::-webkit-scrollbar {
         width: 6px;
     }
@@ -178,9 +205,10 @@
         to { opacity: 1; transform: translateY(0); }
     }
     
-    /* Enforces stacking one after another on tablets and mobile screens */
-    @media (max-width: 900px) {
-        .results-grid { grid-template-columns: 1fr; }
+    /* Responsive adjustment for charts and text */
+    @media (max-width: 1024px) {
+        .card-body { grid-template-columns: 1fr; } /* Stack text and chart on smaller screens */
+        .chart-container { min-height: 250px; }
     }
 </style>
 
@@ -191,36 +219,60 @@
 
 <div class="results-grid">
 
+    <!-- Idea Score Section -->
     <div class="result-card">
         <div class="card-header">
             <h2>📊 Idea Score</h2>
             <button class="copy-btn" onclick="copyText(`{{ score|escapejs }}`)">📋 Copy</button>
         </div>
-        <pre class="result-content">{{ score }}</pre>
+        <div class="card-body">
+            <pre class="result-content">{{ score }}</pre>
+            <div class="chart-container">
+                <canvas id="scoreChart"></canvas>
+            </div>
+        </div>
     </div>
 
+    <!-- Startup Plan Section -->
     <div class="result-card">
         <div class="card-header">
             <h2>📋 Startup Plan</h2>
             <button class="copy-btn" onclick="copyText(`{{ plan|escapejs }}`)">📋 Copy</button>
         </div>
-        <pre class="result-content">{{ plan }}</pre>
+        <div class="card-body">
+            <pre class="result-content">{{ plan }}</pre>
+            <div class="chart-container">
+                <canvas id="planChart"></canvas>
+            </div>
+        </div>
     </div>
 
+    <!-- Build Roadmap Section -->
     <div class="result-card">
         <div class="card-header">
             <h2>🛠️ Build Roadmap</h2>
             <button class="copy-btn" onclick="copyText(`{{ roadmap|escapejs }}`)">📋 Copy</button>
         </div>
-        <pre class="result-content">{{ roadmap }}</pre>
+        <div class="card-body">
+            <pre class="result-content">{{ roadmap }}</pre>
+            <div class="chart-container">
+                <canvas id="roadmapChart"></canvas>
+            </div>
+        </div>
     </div>
 
+    <!-- Tech Stack Section -->
     <div class="result-card">
         <div class="card-header">
             <h2>⚙️ Tech Stack</h2>
             <button class="copy-btn" onclick="copyText(`{{ tech|escapejs }}`)">📋 Copy</button>
         </div>
-        <pre class="result-content">{{ tech }}</pre>
+        <div class="card-body">
+            <pre class="result-content">{{ tech }}</pre>
+            <div class="chart-container">
+                <canvas id="techChart"></canvas>
+            </div>
+        </div>
     </div>
 
 </div>
@@ -230,15 +282,127 @@
     <a href="/download/" class="btn-download">📄 Download PDF</a>
 </div>
 
-<!-- Script to automatically parse the ugly **markdown** text into actual bold styling! -->
+<!-- Text Parser & Chart Initializer -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        // 1. Parse bold text
         const contentBlocks = document.querySelectorAll('.result-content');
         contentBlocks.forEach(block => {
             let text = block.innerHTML;
-            // Replaces **Text** with <strong>Text</strong>
-            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // Bold **text**
             block.innerHTML = text;
+        });
+
+        // Chart Global defaults for dark theme
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+        const gridOptions = { color: 'rgba(255, 255, 255, 0.05)' };
+
+        // 2. Render Idea Score Chart (Bar Chart)
+        new Chart(document.getElementById('scoreChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: ['Market Demand', 'Competition Level', 'Profit Potential'],
+                datasets: [{
+                    label: 'Score out of 10',
+                    data: [9, 6, 8],
+                    backgroundColor: ['rgba(56, 189, 248, 0.7)', 'rgba(244, 63, 94, 0.7)', 'rgba(16, 185, 129, 0.7)'],
+                    borderColor: ['#38bdf8', '#f43f5e', '#10b981'],
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, max: 10, grid: gridOptions },
+                    x: { grid: { display: false } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // 3. Render Startup Plan Chart (Doughnut Chart for Revenue Model)
+        new Chart(document.getElementById('planChart').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['SaaS Subscriptions', 'Freemium Users', 'Enterprise Plans', 'Pay-per-report'],
+                datasets: [{
+                    data: [55, 25, 15, 5],
+                    backgroundColor: [
+                        'rgba(59, 130, 246, 0.8)', // Blue
+                        'rgba(139, 92, 246, 0.8)', // Purple
+                        'rgba(245, 158, 11, 0.8)', // Amber
+                        'rgba(16, 185, 129, 0.8)'  // Emerald
+                    ],
+                    borderColor: 'rgba(15, 23, 42, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right' },
+                    title: { display: true, text: 'Expected Revenue Distribution', color: '#cbd5e1' }
+                }
+            }
+        });
+
+        // 4. Render Roadmap Chart (Line Chart for Effort/Progress)
+        new Chart(document.getElementById('roadmapChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                datasets: [{
+                    label: 'Development Progress (%)',
+                    data: [25, 50, 85, 100],
+                    borderColor: '#38bdf8',
+                    backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#fff',
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, max: 100, grid: gridOptions },
+                    x: { grid: gridOptions }
+                }
+            }
+        });
+
+        // 5. Render Tech Stack Chart (Polar Area Chart)
+        new Chart(document.getElementById('techChart').getContext('2d'), {
+            type: 'polarArea',
+            data: {
+                labels: ['Frontend (Next.js)', 'Backend (FastAPI)', 'Database (PostgreSQL)', 'AI Models (Hugging Face)', 'Cloud Ops (AWS/GCP)'],
+                datasets: [{
+                    data: [20, 25, 15, 25, 15],
+                    backgroundColor: [
+                        'rgba(236, 72, 153, 0.6)', // Pink
+                        'rgba(56, 189, 248, 0.6)', // Light Blue
+                        'rgba(52, 211, 153, 0.6)', // Emerald
+                        'rgba(167, 139, 250, 0.6)', // Purple
+                        'rgba(251, 191, 36, 0.6)'  // Amber
+                    ],
+                    borderColor: 'rgba(15, 23, 42, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { r: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { display: false } } },
+                plugins: {
+                    legend: { position: 'right' }
+                }
+            }
         });
     });
 </script>
