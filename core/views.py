@@ -14,20 +14,26 @@ from .models import StartupIdea, UserProfile
 
 # NEW HELPER FUNCTION (ONLY ADDITION)
 def extract_section(text, section_name):
+    if section_name not in text:
+        return "⚠ Section not generated properly. Try again."
+
     try:
         start = text.index(section_name)
         sections = ["## Startup Plan", "## Idea Score", "## Roadmap", "## Tech Stack"]
 
         next_pos = len(text)
+
         for sec in sections:
-            if sec != section_name and sec in text[start + 1:]:
-                pos = text.index(sec, start + 1)
-                if pos < next_pos:
+            if sec != section_name and sec in text:
+                pos = text.find(sec, start + 1)
+                if pos != -1 and pos < next_pos:
                     next_pos = pos
 
         return text[start:next_pos].strip()
-    except:
-        return text
+
+    except Exception as e:
+        print("PARSE ERROR:", e)
+        return "Error parsing content"
 
 
 # HOME
