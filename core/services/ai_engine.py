@@ -86,16 +86,33 @@ def generate_tech_stack(idea):
 def generate_full_startup(idea):
     prompt = f"""
     You are a professional startup consultant.
-
+    
     Analyze this idea: {idea}
-
-    Give response in this format:
-
+    
+    Give response EXACTLY in this format:
+    
     ## Startup Plan
+    (Include Problem, Solution, Target Audience, Revenue Model, USP)
+    
     ## Idea Score
+    Market Demand (0-10)
+    Competition Level (0-10)
+    Profit Potential (0-10)
+    Overall Score (0-100)
+    
     ## Roadmap
+    Week 1
+    Week 2
+    Week 3
+    Week 4
+    
     ## Tech Stack
-
-    Keep everything short and structured.
+    Frontend
+    Backend
+    Database
+    APIs
+    Deployment
+    
+    Keep it clean and structured.
     """
     return generate_response(prompt)

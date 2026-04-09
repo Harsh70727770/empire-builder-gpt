@@ -12,6 +12,24 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from .models import StartupIdea, UserProfile   
 
+# NEW HELPER FUNCTION (ONLY ADDITION)
+def extract_section(text, section_name):
+    try:
+        start = text.index(section_name)
+        sections = ["## Startup Plan", "## Idea Score", "## Roadmap", "## Tech Stack"]
+
+        next_pos = len(text)
+        for sec in sections:
+            if sec != section_name and sec in text[start + 1:]:
+                pos = text.index(sec, start + 1)
+                if pos < next_pos:
+                    next_pos = pos
+
+        return text[start:next_pos].strip()
+    except:
+        return text
+
+
 # HOME
 def home(request):
     if request.method == "POST":
@@ -24,10 +42,11 @@ def home(request):
             print("ERROR:", e)
             result = "Something went wrong. Please try again."
 
-        plan = result
-        score = result
-        roadmap = result
-        tech = result
+        # PARSE INTO SECTIONS (MAIN UPDATE)
+        plan = extract_section(result, "## Startup Plan")
+        score = extract_section(result, "## Idea Score")
+        roadmap = extract_section(result, "## Roadmap")
+        tech = extract_section(result, "## Tech Stack")
 
         request.session["plan"] = plan
         request.session["score"] = score
@@ -124,7 +143,7 @@ def logout_view(request):
 
 # DASHBOARD
 def dashboard(request):
-    # ✅ FIX 1: Authentication check added
+    # FIX 1: Authentication check added
     if not request.user.is_authenticated:
         return redirect("login")
 
@@ -140,10 +159,11 @@ def dashboard(request):
             print("ERROR:", e)
             result = "Something went wrong. Please try again."
 
-        plan = result
-        score = result
-        roadmap = result
-        tech = result
+        # PARSE INTO SECTIONS (MAIN UPDATE)
+        plan = extract_section(result, "## Startup Plan")
+        score = extract_section(result, "## Idea Score")
+        roadmap = extract_section(result, "## Roadmap")
+        tech = extract_section(result, "## Tech Stack")
 
         request.session["plan"] = plan
         request.session["score"] = score
