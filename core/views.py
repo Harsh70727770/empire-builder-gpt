@@ -3,7 +3,8 @@ from .services.ai_engine import (
     generate_startup_plan,
     generate_idea_score,
     generate_roadmap,
-    generate_tech_stack
+    generate_tech_stack,
+    generate_full_startup ,
 )
 from django.http import FileResponse
 from .utils.pdf_generator import generate_pdf
@@ -16,12 +17,14 @@ def home(request):
     if request.method == "POST":
         idea = request.POST.get("idea")
 
-        plan = generate_startup_plan(idea)
-        score = generate_idea_score(idea)
-        roadmap = generate_roadmap(idea)
-        tech = generate_tech_stack(idea)
+        # SINGLE CALL (MAIN FIX)
+        result = generate_full_startup(idea)
 
-        # SAVE TO SESSION
+        plan = result
+        score = result
+        roadmap = result
+        tech = result
+
         request.session["plan"] = plan
         request.session["score"] = score
         request.session["roadmap"] = roadmap
@@ -35,7 +38,6 @@ def home(request):
         })
 
     return render(request, "pages/index.html")
-
 
 # DOWNLOAD PDF
 def download_pdf(request):
@@ -119,41 +121,30 @@ def logout_view(request):
 
 # DASHBOARD
 def dashboard(request):
-    if not request.user.is_authenticated:
-        return redirect("login")
-
-    # FIXED (NO CRASH)
-    profile, created = UserProfile.objects.get_or_create(user=request.user)
-
     if request.method == "POST":
-        idea = request.POST.get("idea")
-
-        plan = generate_startup_plan(idea)
-        score = generate_idea_score(idea)
-        roadmap = generate_roadmap(idea)
-        tech = generate_tech_stack(idea)
-
-        # SAVE SESSION
-        request.session["plan"] = plan
-        request.session["score"] = score
-        request.session["roadmap"] = roadmap
-        request.session["tech"] = tech
-
-        StartupIdea.objects.create(user=request.user, idea=idea)
-
-        return render(request, "pages/result.html", {
-            "plan": plan,
-            "score": score,
-            "roadmap": roadmap,
-            "tech": tech
-        })
-
-    ideas = StartupIdea.objects.filter(user=request.user).order_by("-created_at")
-
-    return render(request, "pages/dashboard.html", {
-        "ideas": ideas,
-        "profile": profile
-    })
+      idea = request.POST.get("idea")
+  
+      # SINGLE CALL (MAIN FIX)
+      result = generate_full_startup(idea)
+  
+      plan = result
+      score = result
+      roadmap = result
+      tech = result
+  
+      request.session["plan"] = plan
+      request.session["score"] = score
+      request.session["roadmap"] = roadmap
+      request.session["tech"] = tech
+  
+      StartupIdea.objects.create(user=request.user, idea=idea)
+  
+      return render(request, "pages/result.html", {
+          "plan": plan,
+          "score": score,
+          "roadmap": roadmap,
+          "tech": tech
+      })
 
 
 # PROFILE

@@ -27,9 +27,7 @@ def generate_startup_plan(idea):
 
     Keep it clean and professional.
     """
-
     return generate_response(prompt)
-
 
 
 def generate_idea_score(idea):
@@ -46,8 +44,8 @@ def generate_idea_score(idea):
 
     Also explain briefly.
     """
-
     return generate_response(prompt)
+
 
 def generate_roadmap(idea):
     prompt = f"""
@@ -63,8 +61,8 @@ def generate_roadmap(idea):
 
     Keep it practical and actionable.
     """
-
     return generate_response(prompt)
+
 
 def generate_tech_stack(idea):
     prompt = f"""
@@ -81,5 +79,23 @@ def generate_tech_stack(idea):
 
     Keep it modern and scalable.
     """
+    return generate_response(prompt)
 
+
+# NEW OPTIMIZED FUNCTION (MAIN FIX)
+def generate_full_startup(idea):
+    prompt = f"""
+    You are a professional startup consultant.
+
+    Analyze this idea: {idea}
+
+    Give response in this format:
+
+    ## Startup Plan
+    ## Idea Score
+    ## Roadmap
+    ## Tech Stack
+
+    Keep everything short and structured.
+    """
     return generate_response(prompt)
