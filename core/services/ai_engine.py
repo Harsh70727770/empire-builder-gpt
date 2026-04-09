@@ -86,33 +86,44 @@ def generate_tech_stack(idea):
 def generate_full_startup(idea):
     prompt = f"""
     You are a professional startup consultant.
-    
+
     Analyze this idea: {idea}
-    
-    Give response EXACTLY in this format:
-    
-    ## Startup Plan
-    (Include Problem, Solution, Target Audience, Revenue Model, USP)
-    
-    ## Idea Score
-    Market Demand (0-10)
-    Competition Level (0-10)
-    Profit Potential (0-10)
-    Overall Score (0-100)
-    
-    ## Roadmap
-    Week 1
-    Week 2
-    Week 3
-    Week 4
-    
-    ## Tech Stack
-    Frontend
-    Backend
-    Database
-    APIs
-    Deployment
-    
-    Keep it clean and structured.
+
+    IMPORTANT:
+    - Return response ONLY in JSON
+    - Do NOT skip any field
+
+    Format:
+
+    {{
+        "startup_plan": {{
+            "problem": "",
+            "solution": "",
+            "target_audience": "",
+            "revenue_model": "",
+            "usp": ""
+        }},
+        "idea_score": {{
+            "market_demand": "",
+            "competition_level": "",
+            "profit_potential": "",
+            "overall_score": ""
+        }},
+        "roadmap": {{
+            "week1": "",
+            "week2": "",
+            "week3": "",
+            "week4": ""
+        }},
+        "tech_stack": {{
+            "frontend": "",
+            "backend": "",
+            "database": "",
+            "apis": "",
+            "deployment": ""
+        }}
+    }}
+
+    Return ONLY JSON.
     """
     return generate_response(prompt)

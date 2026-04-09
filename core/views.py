@@ -11,6 +11,8 @@ from .utils.pdf_generator import generate_pdf
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from .models import StartupIdea, UserProfile   
+import json   # ✅ NEW IMPORT
+
 
 # NEW HELPER FUNCTION (ONLY ADDITION)
 def extract_section(text, section_name):
@@ -36,6 +38,23 @@ def extract_section(text, section_name):
         return "Error parsing content"
 
 
+# NEW JSON PARSER (SAFE ADDITION 🔥)
+def parse_json_result(result):
+    try:
+        data = json.loads(result)
+
+        plan = "\n".join([f"{k.capitalize()}: {v}" for k, v in data.get("startup_plan", {}).items()])
+        score = "\n".join([f"{k.replace('_',' ').title()}: {v}" for k, v in data.get("idea_score", {}).items()])
+        roadmap = "\n".join([f"{k.capitalize()}: {v}" for k, v in data.get("roadmap", {}).items()])
+        tech = "\n".join([f"{k.capitalize()}: {v}" for k, v in data.get("tech_stack", {}).items()])
+
+        return plan, score, roadmap, tech
+
+    except Exception as e:
+        print("JSON PARSE FAILED:", e)
+        return None, None, None, None
+
+
 # HOME
 def home(request):
     if request.method == "POST":
@@ -48,11 +67,15 @@ def home(request):
             print("ERROR:", e)
             result = "Something went wrong. Please try again."
 
-        # PARSE INTO SECTIONS (MAIN UPDATE)
-        plan = extract_section(result, "## Startup Plan")
-        score = extract_section(result, "## Idea Score")
-        roadmap = extract_section(result, "## Roadmap")
-        tech = extract_section(result, "## Tech Stack")
+        # ✅ TRY JSON FIRST
+        plan, score, roadmap, tech = parse_json_result(result)
+
+        # ✅ FALLBACK TO OLD PARSING
+        if not plan:
+            plan = extract_section(result, "## Startup Plan")
+            score = extract_section(result, "## Idea Score")
+            roadmap = extract_section(result, "## Roadmap")
+            tech = extract_section(result, "## Tech Stack")
 
         request.session["plan"] = plan
         request.session["score"] = score
@@ -165,11 +188,15 @@ def dashboard(request):
             print("ERROR:", e)
             result = "Something went wrong. Please try again."
 
-        # PARSE INTO SECTIONS (MAIN UPDATE)
-        plan = extract_section(result, "## Startup Plan")
-        score = extract_section(result, "## Idea Score")
-        roadmap = extract_section(result, "## Roadmap")
-        tech = extract_section(result, "## Tech Stack")
+        # ✅ TRY JSON FIRST
+        plan, score, roadmap, tech = parse_json_result(result)
+
+        # ✅ FALLBACK
+        if not plan:
+            plan = extract_section(result, "## Startup Plan")
+            score = extract_section(result, "## Idea Score")
+            roadmap = extract_section(result, "## Roadmap")
+            tech = extract_section(result, "## Tech Stack")
 
         request.session["plan"] = plan
         request.session["score"] = score
