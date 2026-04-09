@@ -4,7 +4,7 @@ from .services.ai_engine import (
     generate_idea_score,
     generate_roadmap,
     generate_tech_stack,
-    generate_full_startup ,
+    generate_full_startup,
 )
 from django.http import FileResponse
 from .utils.pdf_generator import generate_pdf
@@ -17,8 +17,12 @@ def home(request):
     if request.method == "POST":
         idea = request.POST.get("idea")
 
-        # SINGLE CALL (MAIN FIX)
-        result = generate_full_startup(idea)
+        try:
+            # SINGLE CALL (MAIN FIX)
+            result = generate_full_startup(idea)
+        except Exception as e:
+            print("ERROR:", e)
+            result = "Something went wrong. Please try again."
 
         plan = result
         score = result
@@ -39,6 +43,7 @@ def home(request):
 
     return render(request, "pages/index.html")
 
+
 # DOWNLOAD PDF
 def download_pdf(request):
     data = {
@@ -48,7 +53,6 @@ def download_pdf(request):
         "tech": request.session.get("tech"),
     }
 
-    # SAFE CHECK
     if not any(data.values()):
         return redirect("dashboard")
 
@@ -100,7 +104,6 @@ def signup_view(request):
             email=email
         )
 
-        # PROFILE CREATED HERE
         UserProfile.objects.create(
             user=user,
             phone=phone,
@@ -121,30 +124,47 @@ def logout_view(request):
 
 # DASHBOARD
 def dashboard(request):
+    # ✅ FIX 1: Authentication check added
+    if not request.user.is_authenticated:
+        return redirect("login")
+
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
+
     if request.method == "POST":
-      idea = request.POST.get("idea")
-  
-      # SINGLE CALL (MAIN FIX)
-      result = generate_full_startup(idea)
-  
-      plan = result
-      score = result
-      roadmap = result
-      tech = result
-  
-      request.session["plan"] = plan
-      request.session["score"] = score
-      request.session["roadmap"] = roadmap
-      request.session["tech"] = tech
-  
-      StartupIdea.objects.create(user=request.user, idea=idea)
-  
-      return render(request, "pages/result.html", {
-          "plan": plan,
-          "score": score,
-          "roadmap": roadmap,
-          "tech": tech
-      })
+        idea = request.POST.get("idea")
+
+        try:
+            # SINGLE CALL (MAIN FIX)
+            result = generate_full_startup(idea)
+        except Exception as e:
+            print("ERROR:", e)
+            result = "Something went wrong. Please try again."
+
+        plan = result
+        score = result
+        roadmap = result
+        tech = result
+
+        request.session["plan"] = plan
+        request.session["score"] = score
+        request.session["roadmap"] = roadmap
+        request.session["tech"] = tech
+
+        StartupIdea.objects.create(user=request.user, idea=idea)
+
+        return render(request, "pages/result.html", {
+            "plan": plan,
+            "score": score,
+            "roadmap": roadmap,
+            "tech": tech
+        })
+
+    ideas = StartupIdea.objects.filter(user=request.user).order_by("-created_at")
+
+    return render(request, "pages/dashboard.html", {
+        "ideas": ideas,
+        "profile": profile
+    })
 
 
 # PROFILE
@@ -176,6 +196,7 @@ def edit_profile(request):
 
     return render(request, "pages/edit_profile.html", {"profile": profile})
 
+
 def about_view(request):
     return render(request, "pages/about.html")
 
@@ -190,14 +211,12 @@ def contact_view(request):
         email = request.POST.get("email")
         message = request.POST.get("message")
 
-        #  Save to Database
         ContactMessage.objects.create(
             name=name,
             email=email,
             message=message
         )
 
-        #  Send Email
         subject = f"New Contact Message from {name}"
         full_message = f"""
         Name: {name}
@@ -218,8 +237,10 @@ def contact_view(request):
 
     return render(request, "pages/contact.html")
 
+
 def features_view(request):
     return render(request, "pages/features.html")
 
+
 def privacypolicy_view(request):
-    return render(request,"pages/privacypolicy.html")
+    return render(request, "pages/privacypolicy.html")
