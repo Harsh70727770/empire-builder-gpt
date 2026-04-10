@@ -85,45 +85,45 @@ def generate_tech_stack(idea):
 # NEW OPTIMIZED FUNCTION (MAIN FIX)
 def generate_full_startup(idea):
     prompt = f"""
-    You are a professional startup consultant.
+You are a professional startup consultant.
 
-    Analyze this idea: {idea}
+Analyze this idea: {idea}
 
-    IMPORTANT:
-    - Return response ONLY in JSON
-    - Do NOT skip any field
+IMPORTANT RULES:
+- You MUST generate ALL sections
+- Do NOT skip any section
+- Use EXACT headings
+- Write detailed but clean content
 
-    Format:
+FORMAT STRICTLY:
 
-    {{
-        "startup_plan": {{
-            "problem": "",
-            "solution": "",
-            "target_audience": "",
-            "revenue_model": "",
-            "usp": ""
-        }},
-        "idea_score": {{
-            "market_demand": "",
-            "competition_level": "",
-            "profit_potential": "",
-            "overall_score": ""
-        }},
-        "roadmap": {{
-            "week1": "",
-            "week2": "",
-            "week3": "",
-            "week4": ""
-        }},
-        "tech_stack": {{
-            "frontend": "",
-            "backend": "",
-            "database": "",
-            "apis": "",
-            "deployment": ""
-        }}
-    }}
+=== STARTUP PLAN ===
+Problem:
+Solution:
+Target Audience:
+Revenue Model:
+Unique Selling Point:
 
-    Return ONLY JSON.
-    """
+=== IDEA SCORE ===
+Market Demand:
+Competition Level:
+Profit Potential:
+Overall Score:
+
+=== ROADMAP ===
+Week 1:
+Week 2:
+Week 3:
+Week 4:
+
+=== TECH STACK ===
+Frontend:
+Backend:
+Database:
+APIs:
+Deployment:
+
+Do not skip anything.
+Do not add extra text outside format.
+"""
     return generate_response(prompt)

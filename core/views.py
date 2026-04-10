@@ -15,23 +15,19 @@ import json   # ✅ NEW IMPORT
 
 
 # NEW HELPER FUNCTION (ONLY ADDITION)
-def extract_section(text, section_name):
-    if section_name not in text:
-        return "⚠ Section not generated properly. Try again."
-
+def extract_section(text, start_key, end_keys):
     try:
-        start = text.index(section_name)
-        sections = ["## Startup Plan", "## Idea Score", "## Roadmap", "## Tech Stack"]
+        start = text.find(start_key)
+        if start == -1:
+            return "⚠ Section not generated properly. Try again."
 
-        next_pos = len(text)
+        end = len(text)
+        for key in end_keys:
+            pos = text.find(key, start + 1)
+            if pos != -1 and pos < end:
+                end = pos
 
-        for sec in sections:
-            if sec != section_name and sec in text:
-                pos = text.find(sec, start + 1)
-                if pos != -1 and pos < next_pos:
-                    next_pos = pos
-
-        return text[start:next_pos].strip()
+        return text[start:end].replace(start_key, "").strip()
 
     except Exception as e:
         print("PARSE ERROR:", e)
@@ -43,10 +39,10 @@ def parse_json_result(result):
     try:
         data = json.loads(result)
 
-        plan = "\n".join([f"{k.capitalize()}: {v}" for k, v in data.get("startup_plan", {}).items()])
-        score = "\n".join([f"{k.replace('_',' ').title()}: {v}" for k, v in data.get("idea_score", {}).items()])
-        roadmap = "\n".join([f"{k.capitalize()}: {v}" for k, v in data.get("roadmap", {}).items()])
-        tech = "\n".join([f"{k.capitalize()}: {v}" for k, v in data.get("tech_stack", {}).items()])
+        plan = extract_section(result, "=== STARTUP PLAN ===", ["=== IDEA SCORE ==="])
+        score = extract_section(result, "=== IDEA SCORE ===", ["=== ROADMAP ==="])
+        roadmap = extract_section(result, "=== ROADMAP ===", ["=== TECH STACK ==="])
+        tech = extract_section(result, "=== TECH STACK ===", [])
 
         return plan, score, roadmap, tech
 
@@ -63,6 +59,7 @@ def home(request):
         try:
             # SINGLE CALL (MAIN FIX)
             result = generate_full_startup(idea)
+            print("RAW RESULT:\n", result)
         except Exception as e:
             print("ERROR:", e)
             result = "Something went wrong. Please try again."
@@ -184,14 +181,15 @@ def dashboard(request):
         try:
             # SINGLE CALL (MAIN FIX)
             result = generate_full_startup(idea)
+            print("RAW RESULT:\n", result)
         except Exception as e:
             print("ERROR:", e)
             result = "Something went wrong. Please try again."
 
-        # ✅ TRY JSON FIRST
+        #  TRY JSON FIRST
         plan, score, roadmap, tech = parse_json_result(result)
 
-        # ✅ FALLBACK
+        #  FALLBACK
         if not plan:
             plan = extract_section(result, "## Startup Plan")
             score = extract_section(result, "## Idea Score")
