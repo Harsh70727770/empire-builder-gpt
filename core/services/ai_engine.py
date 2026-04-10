@@ -92,38 +92,41 @@ Analyze this idea: {idea}
 IMPORTANT RULES:
 - You MUST generate ALL sections
 - Do NOT skip any section
-- Use EXACT headings
+- Use CLEAR headings (very important)
 - Write detailed but clean content
+- Keep each section properly separated
 
 FORMAT STRICTLY:
 
-=== STARTUP PLAN ===
+Startup Plan
 Problem:
 Solution:
 Target Audience:
 Revenue Model:
 Unique Selling Point:
 
-=== IDEA SCORE ===
+Idea Score
 Market Demand:
 Competition Level:
 Profit Potential:
 Overall Score:
 
-=== ROADMAP ===
+Roadmap
 Week 1:
 Week 2:
 Week 3:
 Week 4:
 
-=== TECH STACK ===
+Tech Stack
 Frontend:
 Backend:
 Database:
 APIs:
 Deployment:
 
-Do not skip anything.
-Do not add extra text outside format.
+IMPORTANT:
+- Do NOT skip any section
+- Do NOT merge sections
+- Do NOT write anything outside this format
 """
     return generate_response(prompt)

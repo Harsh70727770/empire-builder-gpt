@@ -10,25 +10,27 @@ from .models import StartupIdea, UserProfile
 # NEW HELPER FUNCTION (ONLY ADDITION)
 def extract_section(text, start_key, end_keys=None):
     try:
-        start = text.find(start_key)
+        text_lower = text.lower()
+
+        start = text_lower.find(start_key.lower())
         if start == -1:
-            return "⚠ Section not generated properly. Try again."
+            return "⚠ Content not generated. Try again."
 
         if not end_keys:
-            return text[start:].replace(start_key, "").strip()
+            return text[start:].strip()
 
         end = len(text)
+
         for key in end_keys:
-            pos = text.find(key, start + 1)
+            pos = text_lower.find(key.lower(), start + 1)
             if pos != -1 and pos < end:
                 end = pos
 
-        return text[start:end].replace(start_key, "").strip()
+        return text[start:end].strip()
 
     except Exception as e:
         print("PARSE ERROR:", e)
         return "Error parsing content"
-
 
 
 # HOME
@@ -43,10 +45,10 @@ def home(request):
             print("ERROR:", e)
             result = "Something went wrong."
 
-        plan = extract_section(result, "## Startup Plan", ["## Idea Score"])
-        score = extract_section(result, "## Idea Score", ["## Roadmap"])
-        roadmap = extract_section(result, "## Roadmap", ["## Tech Stack"])
-        tech = extract_section(result, "## Tech Stack", [])
+        plan = extract_section(result, "startup plan", ["idea score"])
+        score = extract_section(result, "idea score", ["roadmap"])
+        roadmap = extract_section(result, "roadmap", ["tech stack"])
+        tech = extract_section(result, "tech stack", [])
 
         request.session["plan"] = plan
         request.session["score"] = score
@@ -159,10 +161,10 @@ def dashboard(request):
             print("ERROR:", e)
             result = "Something went wrong."
 
-        plan = extract_section(result, "## Startup Plan", ["## Idea Score"])
-        score = extract_section(result, "## Idea Score", ["## Roadmap"])
-        roadmap = extract_section(result, "## Roadmap", ["## Tech Stack"])
-        tech = extract_section(result, "## Tech Stack", [])
+        plan = extract_section(result, "startup plan", ["idea score"])
+        score = extract_section(result, "idea score", ["roadmap"])
+        roadmap = extract_section(result, "roadmap", ["tech stack"])
+        tech = extract_section(result, "tech stack", [])
 
         request.session["plan"] = plan
         request.session["score"] = score
