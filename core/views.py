@@ -1,25 +1,21 @@
 from django.shortcuts import render, redirect
-from .services.ai_engine import (
-    generate_startup_plan,
-    generate_idea_score,
-    generate_roadmap,
-    generate_tech_stack,
-    generate_full_startup,
-)
+from .services.ai_engine import generate_full_startup
 from django.http import FileResponse
 from .utils.pdf_generator import generate_pdf
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from .models import StartupIdea, UserProfile   
-import json   # ✅ NEW IMPORT
 
 
 # NEW HELPER FUNCTION (ONLY ADDITION)
-def extract_section(text, start_key, end_keys):
+def extract_section(text, start_key, end_keys=None):
     try:
         start = text.find(start_key)
         if start == -1:
             return "⚠ Section not generated properly. Try again."
+
+        if not end_keys:
+            return text[start:].replace(start_key, "").strip()
 
         end = len(text)
         for key in end_keys:
@@ -34,22 +30,6 @@ def extract_section(text, start_key, end_keys):
         return "Error parsing content"
 
 
-# NEW JSON PARSER (SAFE ADDITION 🔥)
-def parse_json_result(result):
-    try:
-        data = json.loads(result)
-
-        plan = extract_section(result, "=== STARTUP PLAN ===", ["=== IDEA SCORE ==="])
-        score = extract_section(result, "=== IDEA SCORE ===", ["=== ROADMAP ==="])
-        roadmap = extract_section(result, "=== ROADMAP ===", ["=== TECH STACK ==="])
-        tech = extract_section(result, "=== TECH STACK ===", [])
-
-        return plan, score, roadmap, tech
-
-    except Exception as e:
-        print("JSON PARSE FAILED:", e)
-        return None, None, None, None
-
 
 # HOME
 def home(request):
@@ -57,22 +37,16 @@ def home(request):
         idea = request.POST.get("idea")
 
         try:
-            # SINGLE CALL (MAIN FIX)
             result = generate_full_startup(idea)
             print("RAW RESULT:\n", result)
         except Exception as e:
             print("ERROR:", e)
-            result = "Something went wrong. Please try again."
+            result = "Something went wrong."
 
-        # ✅ TRY JSON FIRST
-        plan, score, roadmap, tech = parse_json_result(result)
-
-        # ✅ FALLBACK TO OLD PARSING
-        if not plan:
-            plan = extract_section(result, "## Startup Plan")
-            score = extract_section(result, "## Idea Score")
-            roadmap = extract_section(result, "## Roadmap")
-            tech = extract_section(result, "## Tech Stack")
+        plan = extract_section(result, "## Startup Plan", ["## Idea Score"])
+        score = extract_section(result, "## Idea Score", ["## Roadmap"])
+        roadmap = extract_section(result, "## Roadmap", ["## Tech Stack"])
+        tech = extract_section(result, "## Tech Stack", [])
 
         request.session["plan"] = plan
         request.session["score"] = score
@@ -87,6 +61,7 @@ def home(request):
         })
 
     return render(request, "pages/index.html")
+
 
 
 # DOWNLOAD PDF
@@ -169,7 +144,6 @@ def logout_view(request):
 
 # DASHBOARD
 def dashboard(request):
-    # FIX 1: Authentication check added
     if not request.user.is_authenticated:
         return redirect("login")
 
@@ -179,22 +153,16 @@ def dashboard(request):
         idea = request.POST.get("idea")
 
         try:
-            # SINGLE CALL (MAIN FIX)
             result = generate_full_startup(idea)
             print("RAW RESULT:\n", result)
         except Exception as e:
             print("ERROR:", e)
-            result = "Something went wrong. Please try again."
+            result = "Something went wrong."
 
-        #  TRY JSON FIRST
-        plan, score, roadmap, tech = parse_json_result(result)
-
-        #  FALLBACK
-        if not plan:
-            plan = extract_section(result, "## Startup Plan")
-            score = extract_section(result, "## Idea Score")
-            roadmap = extract_section(result, "## Roadmap")
-            tech = extract_section(result, "## Tech Stack")
+        plan = extract_section(result, "## Startup Plan", ["## Idea Score"])
+        score = extract_section(result, "## Idea Score", ["## Roadmap"])
+        roadmap = extract_section(result, "## Roadmap", ["## Tech Stack"])
+        tech = extract_section(result, "## Tech Stack", [])
 
         request.session["plan"] = plan
         request.session["score"] = score
