@@ -7,49 +7,35 @@ from django.contrib.auth.models import User
 from .models import StartupIdea, UserProfile   
 
 
-# NEW HELPER FUNCTION (ONLY ADDITION)
-def extract_section(text, start_key, end_keys=None):
+# NEW HELPER FUNCTION (FINAL FIX 🔥)
+def extract_section(text, section_type):
     try:
         import re
 
-        # 🔥 CLEAN TEXT (VERY IMPORTANT FIX)
+        # Clean formatting
         clean_text = re.sub(r'[\*\#\-\_\`]', '', text)
-        text_lower = clean_text.lower()
 
-        # HANDLE MULTIPLE POSSIBLE HEADINGS
-        aliases = {
-            "startup plan": ["startup plan"],
-            "idea score": ["idea score"],
-            "roadmap": ["roadmap"],
-            "tech stack": ["tech stack", "technology stack", "techstack"]
-        }
+        if section_type == "plan":
+            if "Problem:" in clean_text:
+                return clean_text.split("Problem:")[1].split("Market Demand")[0].strip()
 
-        keys = aliases.get(start_key.lower(), [start_key.lower()])
+        elif section_type == "score":
+            if "Market Demand" in clean_text:
+                return clean_text.split("Market Demand")[1].split("Week 1")[0].strip()
 
-        start = -1
-        for key in keys:
-            start = text_lower.find(key)
-            if start != -1:
-                break
+        elif section_type == "roadmap":
+            if "Week 1" in clean_text:
+                return clean_text.split("Week 1")[1].split("Frontend")[0].strip()
 
-        if start == -1:
-            return "⚠ Content not generated. Try again."
+        elif section_type == "tech":
+            if "Frontend" in clean_text:
+                return clean_text.split("Frontend")[1].strip()
 
-        if not end_keys:
-            return clean_text[start:].strip()
-
-        end = len(clean_text)
-
-        for key in end_keys:
-            pos = text_lower.find(key.lower(), start + 1)
-            if pos != -1 and pos < end:
-                end = pos
-
-        return clean_text[start:end].strip()
+        return "⚠ Content not generated. Try again."
 
     except Exception as e:
         print("PARSE ERROR:", e)
-        return "Error parsing content"
+        return "⚠ Content not generated. Try again."
 
 
 # HOME
@@ -64,10 +50,10 @@ def home(request):
             print("ERROR:", e)
             result = "Something went wrong."
 
-        plan = extract_section(result, "startup plan", ["idea score"])
-        score = extract_section(result, "idea score", ["roadmap"])
-        roadmap = extract_section(result, "roadmap", ["tech stack"])
-        tech = extract_section(result, "tech stack", [])
+        plan = extract_section(result, "plan")
+        score = extract_section(result, "score")
+        roadmap = extract_section(result, "roadmap")
+        tech = extract_section(result, "tech")
 
         request.session["plan"] = plan
         request.session["score"] = score
@@ -179,10 +165,10 @@ def dashboard(request):
             print("ERROR:", e)
             result = "Something went wrong."
 
-        plan = extract_section(result, "startup plan", ["idea score"])
-        score = extract_section(result, "idea score", ["roadmap"])
-        roadmap = extract_section(result, "roadmap", ["tech stack"])
-        tech = extract_section(result, "tech stack", [])
+        plan = extract_section(result, "plan")
+        score = extract_section(result, "score")
+        roadmap = extract_section(result, "roadmap")
+        tech = extract_section(result, "tech")
 
         request.session["plan"] = plan
         request.session["score"] = score
