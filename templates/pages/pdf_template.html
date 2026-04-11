@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #000;
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e3a8a;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #2563eb;
+            margin-top: 25px;
+            border-bottom: 2px solid #2563eb;
+            padding-bottom: 5px;
+        }
+
+        p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        ul {
+            margin-left: 20px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+        }
+
+        /* ✅ NEW SCORE DESIGN */
+        .big-score {
+            text-align: center;
+            font-size: 40px;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin: 20px 0;
+        }
+
+        .score-box {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .score-item {
+            border: 1px solid #ddd;
+            padding: 10px;
+            width: 30%;
+            text-align: center;
+            border-radius: 8px;
+        }
+
+        hr {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🚀 Startup Report</h1>
+
+    <!-- ✅ DYNAMIC SCORE -->
+    <div class="big-score">
+        {{ overall_score }} / 100
+    </div>
+
+    <div class="score-box">
+        <div class="score-item">
+            <strong>Market</strong><br>{{ market_score }}/10
+        </div>
+        <div class="score-item">
+            <strong>Competition</strong><br>{{ competition_score }}/10
+        </div>
+        <div class="score-item">
+            <strong>Profit</strong><br>{{ profit_score }}/10
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>📊 Idea Score</h2>
+        {{ score|safe }}
+    </div>
+
+    <div class="section">
+        <h2>📋 Startup Plan</h2>
+        {{ plan|safe }}
+    </div>
+
+    <div class="section">
+        <h2>🛠️ Roadmap</h2>
+        {{ roadmap|safe }}
+    </div>
+
+    <div class="section">
+        <h2>⚙️ Tech Stack</h2>
+        {{ tech|safe }}
+    </div>
+
+</body>
+</html>

@@ -11,21 +11,30 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from .models import StartupIdea, UserProfile   
 
+import markdown
+
 # HOME
 def home(request):
     if request.method == "POST":
         idea = request.POST.get("idea")
 
-        plan = generate_startup_plan(idea)
-        score = generate_idea_score(idea)
-        roadmap = generate_roadmap(idea)
-        tech = generate_tech_stack(idea)
+        # RAW OUTPUT
+        plan_raw = generate_startup_plan(idea)
+        score_raw = generate_idea_score(idea)
+        roadmap_raw = generate_roadmap(idea)
+        tech_raw = generate_tech_stack(idea)
 
-        # SAVE TO SESSION
-        request.session["plan"] = plan
-        request.session["score"] = score
-        request.session["roadmap"] = roadmap
-        request.session["tech"] = tech
+        # CONVERT TO HTML
+        plan = markdown.markdown(plan_raw, extensions=['extra'])
+        score = markdown.markdown(score_raw, extensions=['extra'])
+        roadmap = markdown.markdown(roadmap_raw, extensions=['extra'])
+        tech = markdown.markdown(tech_raw, extensions=['extra'])
+
+        # SAVE TO SESSION (RAW for PDF)
+        request.session["plan"] = plan_raw
+        request.session["score"] = score_raw
+        request.session["roadmap"] = roadmap_raw
+        request.session["tech"] = tech_raw
 
         return render(request, "pages/result.html", {
             "plan": plan,
@@ -37,7 +46,27 @@ def home(request):
     return render(request, "pages/index.html")
 
 
-# DOWNLOAD PDF
+# DOWNLOAD PDF (UNCHANGED)
+from django.template.loader import render_to_string
+from xhtml2pdf import pisa
+from django.http import HttpResponse
+import markdown
+import re
+
+def extract_scores(text):
+    market = re.search(r'Market.*?(\d+)/10', text)
+    competition = re.search(r'Competition.*?(\d+)/10', text)
+    profit = re.search(r'Profit.*?(\d+)/10', text)
+    overall = re.search(r'(\d+)/100', text)
+
+    return {
+        "market": market.group(1) if market else "0",
+        "competition": competition.group(1) if competition else "0",
+        "profit": profit.group(1) if profit else "0",
+        "overall": overall.group(1) if overall else "0",
+    }
+
+
 def download_pdf(request):
     data = {
         "plan": request.session.get("plan"),
@@ -46,12 +75,33 @@ def download_pdf(request):
         "tech": request.session.get("tech"),
     }
 
-    # SAFE CHECK
     if not any(data.values()):
         return redirect("dashboard")
 
-    filename = generate_pdf(data)
-    return FileResponse(open(filename, "rb"), as_attachment=True)
+    # ✅ Extract dynamic scores
+    scores = extract_scores(data["score"])
+
+    context = {
+        "plan": markdown.markdown(data["plan"], extensions=['extra']),
+        "score": markdown.markdown(data["score"], extensions=['extra']),
+        "roadmap": markdown.markdown(data["roadmap"], extensions=['extra']),
+        "tech": markdown.markdown(data["tech"], extensions=['extra']),
+
+        # ✅ Dynamic values
+        "market_score": scores["market"],
+        "competition_score": scores["competition"],
+        "profit_score": scores["profit"],
+        "overall_score": scores["overall"],
+    }
+
+    html = render_to_string("pages/pdf_template.html", context)
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="startup_report.pdf"'
+
+    pisa.CreatePDF(html, dest=response)
+
+    return response
 
 
 # LOGIN
@@ -69,7 +119,7 @@ def login_view(request):
     return render(request, "pages/login.html")
 
 
-# SIGNUP
+# SIGNUP (UNCHANGED)
 def signup_view(request):
     if request.method == "POST":
         username = request.POST.get("username")
@@ -98,7 +148,6 @@ def signup_view(request):
             email=email
         )
 
-        # PROFILE CREATED HERE
         UserProfile.objects.create(
             user=user,
             phone=phone,
@@ -122,22 +171,27 @@ def dashboard(request):
     if not request.user.is_authenticated:
         return redirect("login")
 
-    # FIXED (NO CRASH)
     profile, created = UserProfile.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
         idea = request.POST.get("idea")
 
-        plan = generate_startup_plan(idea)
-        score = generate_idea_score(idea)
-        roadmap = generate_roadmap(idea)
-        tech = generate_tech_stack(idea)
+        # RAW
+        plan_raw = generate_startup_plan(idea)
+        score_raw = generate_idea_score(idea)
+        roadmap_raw = generate_roadmap(idea)
+        tech_raw = generate_tech_stack(idea)
 
-        # SAVE SESSION
-        request.session["plan"] = plan
-        request.session["score"] = score
-        request.session["roadmap"] = roadmap
-        request.session["tech"] = tech
+        # HTML
+        plan = markdown.markdown(plan_raw, extensions=['extra'])
+        score = markdown.markdown(score_raw, extensions=['extra'])
+        roadmap = markdown.markdown(roadmap_raw, extensions=['extra'])
+        tech = markdown.markdown(tech_raw, extensions=['extra'])
+
+        request.session["plan"] = plan_raw
+        request.session["score"] = score_raw
+        request.session["roadmap"] = roadmap_raw
+        request.session["tech"] = tech_raw
 
         StartupIdea.objects.create(user=request.user, idea=idea)
 

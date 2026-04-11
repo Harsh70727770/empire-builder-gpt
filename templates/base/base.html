@@ -85,36 +85,57 @@
         }
 
         .nav-links > a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.95rem;
-            transition: color 0.3s ease;
-            position: relative;
-        }
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    position: relative;
+    padding: 4px 0;
+}
 
-        .nav-links > a:hover {
-            color: var(--text-primary);
-        }
+/* Hover Effect */
+.nav-links > a:hover {
+    color: var(--text-primary);
+}
 
-        .nav-links > a::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -4px;
-            left: 0;
-            background: var(--accent-primary);
-            transition: width 0.3s ease;
-        }
+/* Underline animation */
+.nav-links > a::after {
+    content: '';
+    position: absolute;
+    width: 0%;
+    height: 2px;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent-gradient);
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
 
-        .nav-links > a:hover::after {
-            width: 100%;
-        }
+/* Hover underline expand */
+.nav-links > a:hover::after {
+    width: 100%;
+}
 
-        .nav-links > a.active {
-            color: var(--text-primary);
-        }
+/*  ACTIVE TAB (GLOW + UNDERLINE FIXED) */
+.nav-links > a.active {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Active underline always visible */
+.nav-links > a.active::after {
+    width: 100%;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.8),
+                0 0 20px rgba(56, 189, 248, 0.4);
+}
+
+/* 🔥 Glow effect */
+.nav-links > a.active {
+    text-shadow: 0 0 6px rgba(56, 189, 248, 0.6),
+                 0 0 12px rgba(56, 189, 248, 0.3);
+}
 
         /* Login Button */
         .nav-links .login-btn {
@@ -465,9 +486,9 @@
 
             <!-- Right -->
             <div class="nav-links">
-                <a href="/" class="active">Home</a>
-                <a href="/about/">About</a>
-                <a href="/contact/">Contact</a>
+                <a href="/" class="{% if request.path == '/' %}active{% endif %}">Home</a>
+                <a href="/about/" class="{% if request.path == '/about/' %}active{% endif %}">About</a>
+                <a href="/contact/" class="{% if request.path == '/contact/' %}active{% endif %}">Contact</a>
 
                 {% if request.user.is_authenticated %}
                 <!--  UPDATED USER MENU BLOCK -->

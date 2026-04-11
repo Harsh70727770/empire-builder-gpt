@@ -1,4 +1,5 @@
 {% extends "base/base.html" %}
+{% load static %}
 
 {% block content %}
 <style>
@@ -21,7 +22,7 @@
         width: 100vw;
         /* Viewport height minus the approximate height of the navbar */
         height: calc(100vh - 80px); 
-        background-image: url('/static/images/bg_image.png');
+        background-image: url("{% static 'images/bg_image.png' %}");
         background-size: cover;
         background-position: center;
         /* Removed background-attachment: fixed; so the button scrolls perfectly WITH the image */

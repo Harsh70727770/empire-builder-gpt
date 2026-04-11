@@ -24,16 +24,14 @@
         font-size: 1.1rem;
     }
 
-    /* --- Grid Layout for Cards (Updated to 1 column) --- */
     .results-grid {
         display: grid;
-        grid-template-columns: 1fr; /* Changed to 1 column layout */
+        grid-template-columns: 1fr;
         gap: 2.5rem;
         margin-bottom: 3rem;
         animation: fadeInUp 0.6s ease-out 0.2s backwards;
     }
 
-    /* --- Premium Glassmorphic Cards --- */
     .result-card {
         background: rgba(15, 23, 42, 0.6);
         border: 1px solid rgba(255, 255, 255, 0.08);
@@ -70,15 +68,14 @@
         gap: 8px;
     }
 
-    /* --- New Card Body Layout (Text + Chart) --- */
     .card-body {
         display: grid;
-        grid-template-columns: 1.5fr 1fr; /* Text takes 60%, Chart takes 40% */
+        grid-template-columns: 1.5fr 1fr;
         gap: 1.5rem;
         align-items: stretch;
     }
 
-    /* --- Content Formatting --- */
+    /* ✅ UPDATED CONTENT STYLING */
     .result-content {
         background: rgba(0, 0, 0, 0.2);
         border-radius: 8px;
@@ -87,14 +84,42 @@
         font-family: 'Segoe UI', system-ui, sans-serif;
         font-size: 0.95rem;
         line-height: 1.7;
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        max-height: 450px; /* Increased height for better reading */
+        max-height: 450px;
         overflow-y: auto;
-        margin: 0;
     }
 
-    /* Chart Container Styles */
+    /* ✅ NEW MARKDOWN STYLING */
+    .result-content h1,
+    .result-content h2,
+    .result-content h3 {
+        color: #38bdf8;
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .result-content ul {
+        padding-left: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .result-content li {
+        margin-bottom: 0.5rem;
+    }
+
+    .result-content p {
+        margin-bottom: 1rem;
+    }
+
+    .result-content hr {
+        border: 1px solid rgba(255,255,255,0.1);
+        margin: 1rem 0;
+    }
+
+    .result-content strong {
+        color: #ffffff;
+        font-weight: 700;
+    }
+
     .chart-container {
         background: rgba(0, 0, 0, 0.15);
         border-radius: 8px;
@@ -103,65 +128,14 @@
         align-items: center;
         justify-content: center;
         min-height: 300px;
-        border: 1px solid rgba(255, 255, 255, 0.03);
-        position: relative;
     }
 
-    .chart-container canvas {
-        max-width: 100%;
-        max-height: 400px;
-    }
-
-    /* Highlighted bold text inside the results */
-    .result-content strong {
-        color: #ffffff;
-        font-weight: 700;
-    }
-
-    /* Custom Scrollbar */
-    .result-content::-webkit-scrollbar {
-        width: 6px;
-    }
-    .result-content::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.02);
-    }
-    .result-content::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
-    }
-    .result-content::-webkit-scrollbar-thumb:hover {
-        background: rgba(56, 189, 248, 0.5);
-    }
-
-    /* --- Copy Button Style --- */
-    .copy-btn {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: #94a3b8;
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-size: 0.85rem;
-        cursor: pointer;
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .copy-btn:hover {
-        background: rgba(56, 189, 248, 0.15);
-        color: #38bdf8;
-        border-color: #38bdf8;
-    }
-
-    /* --- Bottom Action Buttons --- */
     .action-container {
         display: flex;
         justify-content: center;
         gap: 1.5rem;
         margin-top: 2rem;
         padding-bottom: 2rem;
-        animation: fadeInUp 0.6s ease-out 0.4s backwards;
     }
 
     .btn-download {
@@ -170,15 +144,6 @@
         padding: 12px 28px;
         border-radius: 99px;
         text-decoration: none;
-        font-weight: 600;
-        box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
-        transition: all 0.2s;
-        border: none;
-        display: inline-block;
-    }
-    .btn-download:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5);
     }
 
     .btn-back {
@@ -187,34 +152,12 @@
         padding: 12px 28px;
         border-radius: 99px;
         text-decoration: none;
-        font-weight: 600;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        transition: all 0.2s;
-        display: inline-block;
-    }
-    .btn-back:hover {
-        background: rgba(255, 255, 255, 0.1);
-    }
-
-    @keyframes fadeInDown {
-        from { opacity: 0; transform: translateY(-20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    /* Responsive adjustment for charts and text */
-    @media (max-width: 1024px) {
-        .card-body { grid-template-columns: 1fr; } /* Stack text and chart on smaller screens */
-        .chart-container { min-height: 250px; }
     }
 </style>
 
 <div class="results-header">
     <h1>🧠 Your Startup Blueprint</h1>
-    <p>Your vision has been successfully architected. Review your comprehensive plan below.</p>
+    <p>Your vision has been successfully architected.</p>
 </div>
 
 <div class="results-grid">
@@ -226,7 +169,7 @@
             <button class="copy-btn" onclick="copyText(`{{ score|escapejs }}`)">📋 Copy</button>
         </div>
         <div class="card-body">
-            <pre class="result-content">{{ score }}</pre>
+            <div class="result-content">{{ score|safe }}</div>
             <div class="chart-container">
                 <canvas id="scoreChart"></canvas>
             </div>
@@ -240,7 +183,7 @@
             <button class="copy-btn" onclick="copyText(`{{ plan|escapejs }}`)">📋 Copy</button>
         </div>
         <div class="card-body">
-            <pre class="result-content">{{ plan }}</pre>
+            <div class="result-content">{{ plan|safe }}</div>
             <div class="chart-container">
                 <canvas id="planChart"></canvas>
             </div>
@@ -254,7 +197,7 @@
             <button class="copy-btn" onclick="copyText(`{{ roadmap|escapejs }}`)">📋 Copy</button>
         </div>
         <div class="card-body">
-            <pre class="result-content">{{ roadmap }}</pre>
+            <div class="result-content">{{ roadmap|safe }}</div>
             <div class="chart-container">
                 <canvas id="roadmapChart"></canvas>
             </div>
@@ -268,7 +211,7 @@
             <button class="copy-btn" onclick="copyText(`{{ tech|escapejs }}`)">📋 Copy</button>
         </div>
         <div class="card-body">
-            <pre class="result-content">{{ tech }}</pre>
+            <div class="result-content">{{ tech|safe }}</div>
             <div class="chart-container">
                 <canvas id="techChart"></canvas>
             </div>
