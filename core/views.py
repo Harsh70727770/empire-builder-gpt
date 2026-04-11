@@ -10,23 +10,42 @@ from .models import StartupIdea, UserProfile
 # NEW HELPER FUNCTION (ONLY ADDITION)
 def extract_section(text, start_key, end_keys=None):
     try:
-        text_lower = text.lower()
+        import re
 
-        start = text_lower.find(start_key.lower())
+        # 🔥 CLEAN TEXT (VERY IMPORTANT FIX)
+        clean_text = re.sub(r'[\*\#\-\_\`]', '', text)
+        text_lower = clean_text.lower()
+
+        # HANDLE MULTIPLE POSSIBLE HEADINGS
+        aliases = {
+            "startup plan": ["startup plan"],
+            "idea score": ["idea score"],
+            "roadmap": ["roadmap"],
+            "tech stack": ["tech stack", "technology stack", "techstack"]
+        }
+
+        keys = aliases.get(start_key.lower(), [start_key.lower()])
+
+        start = -1
+        for key in keys:
+            start = text_lower.find(key)
+            if start != -1:
+                break
+
         if start == -1:
             return "⚠ Content not generated. Try again."
 
         if not end_keys:
-            return text[start:].strip()
+            return clean_text[start:].strip()
 
-        end = len(text)
+        end = len(clean_text)
 
         for key in end_keys:
             pos = text_lower.find(key.lower(), start + 1)
             if pos != -1 and pos < end:
                 end = pos
 
-        return text[start:end].strip()
+        return clean_text[start:end].strip()
 
     except Exception as e:
         print("PARSE ERROR:", e)
@@ -63,7 +82,6 @@ def home(request):
         })
 
     return render(request, "pages/index.html")
-
 
 
 # DOWNLOAD PDF
