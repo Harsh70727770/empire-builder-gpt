@@ -1,60 +1,27 @@
 from django.shortcuts import render, redirect
-from .services.ai_engine import generate_full_startup
+from .services.ai_engine import (
+    generate_startup_plan,
+    generate_idea_score,
+    generate_roadmap,
+    generate_tech_stack
+)
 from django.http import FileResponse
 from .utils.pdf_generator import generate_pdf
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from .models import StartupIdea, UserProfile   
 
-
-# NEW HELPER FUNCTION (FINAL FIX 🔥)
-def extract_section(text, section_type):
-    try:
-        import re
-
-        # Clean formatting
-        clean_text = re.sub(r'[\*\#\-\_\`]', '', text)
-
-        if section_type == "plan":
-            if "Problem:" in clean_text:
-                return clean_text.split("Problem:")[1].split("Market Demand")[0].strip()
-
-        elif section_type == "score":
-            if "Market Demand" in clean_text:
-                return clean_text.split("Market Demand")[1].split("Week 1")[0].strip()
-
-        elif section_type == "roadmap":
-            if "Week 1" in clean_text:
-                return clean_text.split("Week 1")[1].split("Frontend")[0].strip()
-
-        elif section_type == "tech":
-            if "Frontend" in clean_text:
-                return clean_text.split("Frontend")[1].strip()
-
-        return "⚠ Content not generated. Try again."
-
-    except Exception as e:
-        print("PARSE ERROR:", e)
-        return "⚠ Content not generated. Try again."
-
-
 # HOME
 def home(request):
     if request.method == "POST":
         idea = request.POST.get("idea")
 
-        try:
-            result = generate_full_startup(idea)
-            print("RAW RESULT:\n", result)
-        except Exception as e:
-            print("ERROR:", e)
-            result = "Something went wrong."
+        plan = generate_startup_plan(idea)
+        score = generate_idea_score(idea)
+        roadmap = generate_roadmap(idea)
+        tech = generate_tech_stack(idea)
 
-        plan = extract_section(result, "plan")
-        score = extract_section(result, "score")
-        roadmap = extract_section(result, "roadmap")
-        tech = extract_section(result, "tech")
-
+        # SAVE TO SESSION
         request.session["plan"] = plan
         request.session["score"] = score
         request.session["roadmap"] = roadmap
@@ -79,6 +46,7 @@ def download_pdf(request):
         "tech": request.session.get("tech"),
     }
 
+    # SAFE CHECK
     if not any(data.values()):
         return redirect("dashboard")
 
@@ -130,6 +98,7 @@ def signup_view(request):
             email=email
         )
 
+        # PROFILE CREATED HERE
         UserProfile.objects.create(
             user=user,
             phone=phone,
@@ -153,23 +122,18 @@ def dashboard(request):
     if not request.user.is_authenticated:
         return redirect("login")
 
+    # FIXED (NO CRASH)
     profile, created = UserProfile.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
         idea = request.POST.get("idea")
 
-        try:
-            result = generate_full_startup(idea)
-            print("RAW RESULT:\n", result)
-        except Exception as e:
-            print("ERROR:", e)
-            result = "Something went wrong."
+        plan = generate_startup_plan(idea)
+        score = generate_idea_score(idea)
+        roadmap = generate_roadmap(idea)
+        tech = generate_tech_stack(idea)
 
-        plan = extract_section(result, "plan")
-        score = extract_section(result, "score")
-        roadmap = extract_section(result, "roadmap")
-        tech = extract_section(result, "tech")
-
+        # SAVE SESSION
         request.session["plan"] = plan
         request.session["score"] = score
         request.session["roadmap"] = roadmap
@@ -221,7 +185,6 @@ def edit_profile(request):
 
     return render(request, "pages/edit_profile.html", {"profile": profile})
 
-
 def about_view(request):
     return render(request, "pages/about.html")
 
@@ -236,12 +199,14 @@ def contact_view(request):
         email = request.POST.get("email")
         message = request.POST.get("message")
 
+        #  Save to Database
         ContactMessage.objects.create(
             name=name,
             email=email,
             message=message
         )
 
+        #  Send Email
         subject = f"New Contact Message from {name}"
         full_message = f"""
         Name: {name}
@@ -262,10 +227,8 @@ def contact_view(request):
 
     return render(request, "pages/contact.html")
 
-
 def features_view(request):
     return render(request, "pages/features.html")
 
-
 def privacypolicy_view(request):
-    return render(request, "pages/privacypolicy.html")
+    return render(request,"pages/privacypolicy.html")
